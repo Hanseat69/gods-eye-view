@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+- Update three dependencies with published advisories. Lockfile only;
+  `npm audit` now reports no vulnerabilities.
+  - DOMPurify, bundled by Cesium, 3.4.15 → 3.4.16 (GHSA-p98j-92pf-mc4p, low:
+    an `afterSanitize` hook that removes nodes during `IN_PLACE` sanitizing
+    could leave event handlers armed on the detached subtree).
+  - sharp, used by the build tooling, 0.35.4 → 0.35.5 (GHSA-wq5f-xc86-pv6w,
+    high: CVE-2026-96889 in its bundled librsvg).
+  - source-map-js, used by Vite's CSS pipeline, → 1.2.2 (GHSA-68fv-2mgg-jv7q,
+    high: event-loop denial of service through indexed source-map section
+    offsets).
+
 - Add Norway's road cameras from Statens vegvesen as a CCTV pack. The camera
   list is one keyless GeoJSON request to the agency's OGC API view of its
   DATEX 3.1 CCTV table, so no DATEX account is needed. Every working camera
