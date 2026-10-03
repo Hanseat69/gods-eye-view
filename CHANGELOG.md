@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+- Start with one step: `npm start`, or a double click on `Start-Windows.bat`,
+  `Start-Mac.command` or `start.sh`, checks Node, installs dependencies when
+  they are missing or older than the lockfile, picks a free local port, starts
+  the dev server on 127.0.0.1 and opens the browser. The double-click
+  launchers open the German interface.
+
 - Choose the interface language. Display > Language lists English and
   Deutsch; the choice is stored per browser (`gev:ui-locale:v1`) and the page
   reloads in that language, keeping the shared view in its address. `?lang=de`

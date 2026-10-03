@@ -898,5 +898,7 @@
   "src/costEndpointThrottle.test.mjs",
   "src/i18n/index.test.mjs",
   "src/i18n/catalogs.test.mjs",
-  "src/ui/languagePicker.test.mjs"
+  "src/ui/languagePicker.test.mjs",
+  "scripts/launch.mjs",
+  "src/tooling/launch.test.mjs"
 ]
