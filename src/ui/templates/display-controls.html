@@ -1,7 +1,7 @@
   <!-- Post-processing toggles (top-right) -->
   <div id="pp-toggles" class="panel-collapsible collapsed" data-panel-id="pp-toggles">
     <div class="compact pp-header-row">
-      <span class="pp-header-label">DISPLAY</span>
+      <span class="pp-header-label" data-i18n="panel.display">DISPLAY</span>
       <span class="panel-divider" aria-hidden="true"></span>
       <button class="panel-collapse-btn pp-collapse-btn" data-collapse-target="pp-toggles" title="Collapse panel">&#x25C0;</button>
     </div>
@@ -175,6 +175,13 @@
       <div class="pp-slider-row" id="sharpen-slider-row">
         <input type="range" class="pp-slider" id="sharpen-intensity-slider" min="0" max="100" value="49" aria-label="Sharpen intensity" />
         <span class="pp-slider-value" id="sharpen-intensity-value">49%</span>
+      </div>
+    </div>
+    <div class="pp-toggle-group">
+      <div class="pp-slider-row" id="ui-language-row">
+        <label class="pp-slider-mini-label" for="ui-language-select" data-i18n="language.label">Language</label>
+        <!-- Options are filled from src/i18n/catalogs.js; each names itself in its own language. -->
+        <select id="ui-language-select" class="pp-select" aria-label="Interface language" data-i18n-attr="aria-label:language.select"></select>
       </div>
     </div>
   </div>

@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+- Choose the interface language. Display > Language lists English and
+  Deutsch; the choice is stored per browser (`gev:ui-locale:v1`) and the page
+  reloads in that language, keeping the shared view in its address. `?lang=de`
+  shows one load in German without changing the stored choice. English stays
+  the default and the source text. This first pass translates the first-run
+  launcher, Provider Settings and the Data Layers, Scenes and Display panel
+  titles; untranslated text stays English.
+
 ## [0.2.1] — 2026-10-02 — God's Eye View through Your Agent (with security fixes and other features)
 
 - Ship each bundled data pack once. The region, marine, admin-boundary,

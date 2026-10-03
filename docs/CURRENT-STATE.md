@@ -1,5 +1,29 @@
 # God's Eye View Current State
 
+## Interface language — October 3, 2026
+
+Display > Language switches the interface between English and Deutsch. The
+choice is stored in `localStorage['gev:ui-locale:v1']` (English removes it),
+and the page reloads so every surface starts in one language; the address,
+including the shared view in its hash, is kept. A `?lang=` query outranks the
+stored choice for that load and is dropped when the picker is used. The
+browser's own language is not consulted while coverage is partial.
+
+`src/i18n/` owns the catalogs and the translator. English is the source
+catalog: other locales fall back to it key by key and may not add keys.
+Static markup marks translatable text with `data-i18n="key"` and attributes
+with `data-i18n-attr="attribute:key"`; `src/standalone/locale.js` applies the
+locale before the application starts, so controllers that read their initial
+text from the markup read it translated. Modules ask for dynamic text with
+`t(key, params)`. `src/i18n/catalogs.test.mjs` keeps the English catalog
+identical to the marked template text, the provider registry's descriptions
+and the first-run mission text.
+
+Translated so far: the first-run launcher, Provider Settings (rows, status
+and confirmations; server error messages stay English) and the Data Layers,
+Scenes and Display panel titles. Everything else, including voice, remains
+English.
+
 ## God's Eye View in conversations — October 2, 2026
 
 Tool answers that can be shown in God's Eye View include a view: camera, layers,

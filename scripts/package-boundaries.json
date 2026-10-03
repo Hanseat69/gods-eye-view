@@ -1514,6 +1514,8 @@
       "src/hud.js",
       "src/hudLocality.js",
       "src/hudSummaryResponse.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js",
       "src/keySetup.js",
       "src/keySetupCore.mjs",
       "src/localRequestGate.mjs",
