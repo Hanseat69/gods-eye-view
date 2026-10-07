@@ -23,7 +23,8 @@
   the default and the source text. This first pass translates the first-run
   launcher, Provider Settings, the Data Layers rows, the Display panel
   controls, the command dock, the globe action buttons and the voice
-  control's labels; untranslated text stays English.
+  control's labels, and the Context, CCTV, Scenes, Radio, RTL-SDR, Weather
+  and Recent Imagery panels; untranslated text stays English.
 
 ## [0.2.1] — 2026-10-02 — God's Eye View through Your Agent (with security fixes and other features)
 

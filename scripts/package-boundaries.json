@@ -437,7 +437,9 @@
       "src/ui/radioControls.js",
       "src/ui/radioBindings.js",
       "src/ui/radioPresentation.js",
-      "src/ui/radioTunerModel.js"
+      "src/ui/radioTunerModel.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": []
   },
@@ -450,7 +452,9 @@
       "src/ui/cctvControls.js",
       "src/ui/cctvFrames.js",
       "src/ui/cctvVideo.js",
-      "src/ui/cctvPresentation.js"
+      "src/ui/cctvPresentation.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": []
   },
@@ -505,7 +509,9 @@
     "modules": [
       "src/ui/scenes.js",
       "src/ui/sceneControls.js",
-      "src/ui/scenePresentation.js"
+      "src/ui/scenePresentation.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": []
   },
@@ -747,7 +753,9 @@
       "src/director/authoring.js",
       "src/scenes/sharing.js",
       "src/ui/sceneSharing.js",
-      "src/data/cameraArrival.js"
+      "src/data/cameraArrival.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": ["cesium"]
   },

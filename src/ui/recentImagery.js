@@ -17,6 +17,7 @@ import {
   shortDay,
   wvsSnapshotUrl,
 } from '../layers/recentImagery/model.js';
+import { t } from '../i18n/index.js';
 
 const PANEL_ID = 'recent-imagery-panel';
 const OVERVIEW_MIN_BOX_KM = 25;
@@ -50,6 +51,10 @@ const KEY_STEPS = {
   End: (index, total) => total - 1,
 };
 
+/** Text in the page language; the English stays in this module. */
+const tr = (key, english, params) =>
+  t(`imagery.${key}`, { ...params, default: english });
+
 // Remounting must not reopen a panel the user already collapsed.
 const appearedDocuments = new WeakSet();
 
@@ -68,35 +73,45 @@ const kmText = (km) =>
       : km.toFixed(1);
 
 function cloudText(candidate) {
-  if (candidate.thumbnail?.status === 'empty') return 'no imagery';
-  if (!candidate.cloud) return 'cloud unknown';
+  if (candidate.thumbnail?.status === 'empty')
+    return tr('cloud.noImagery', 'no imagery');
+  if (!candidate.cloud) return tr('cloud.unknown', 'cloud unknown');
   const min = Math.round(candidate.cloud.min);
   const max = Math.round(candidate.cloud.max);
-  return min === max ? `${min}% cloud` : `${min}–${max}% cloud`;
+  return min === max
+    ? tr('cloud.one', `${min}% cloud`, { min })
+    : tr('cloud.range', `${min}–${max}% cloud`, { min, max });
 }
 
 function countText(snapshot) {
-  if (!snapshot.box) return 'NO BOX';
-  if (snapshot.searching) return 'SEARCHING';
+  if (!snapshot.box) return tr('count.noBox', 'NO BOX');
+  if (snapshot.searching) return tr('count.searching', 'SEARCHING');
   const count = snapshot.candidates.length;
-  return `${count} DAY${count === 1 ? '' : 'S'}`;
+  return count === 1
+    ? tr('count.one', `${count} DAY`, { count })
+    : tr('count.many', `${count} DAYS`, { count });
 }
 
 /** The one-line hint under the strip: the next thing to do, per state. */
 function hintText(snapshot) {
-  if (snapshot.zoomToFit) return 'Zoom in or draw a smaller box';
-  if (!snapshot.box) return 'Select a box or use the view';
-  if (snapshot.searching) return 'Searching the last 30 days';
-  if (!snapshot.candidates.length) return 'No days to show for this box';
+  if (snapshot.zoomToFit)
+    return tr('hint.zoom', 'Zoom in or draw a smaller box');
+  if (!snapshot.box) return tr('hint.select', 'Select a box or use the view');
+  if (snapshot.searching)
+    return tr('hint.searching', 'Searching the last 30 days');
+  if (!snapshot.candidates.length)
+    return tr('hint.noDays', 'No days to show for this box');
   const { mode, pins, shown } = snapshot;
-  if (shown.swipe !== 'none') return 'Drag the divider · SWAP trades sides';
+  if (shown.swipe !== 'none')
+    return tr('hint.divider', 'Drag the divider · SWAP trades sides');
   if (mode === 'ab') {
     if (!pins.a.key && !pins.b.key)
-      return '← → preview · A or B pins the focused day';
-    return '← → preview the other side · A or B pins it';
+      return tr('hint.abFirst', '← → preview · A or B pins the focused day');
+    return tr('hint.abSecond', '← → preview the other side · A or B pins it');
   }
-  if (pins.a.key) return 'S on another day replaces it · × unpins';
-  return '← → preview · S shows the focused day';
+  if (pins.a.key)
+    return tr('hint.replace', 'S on another day replaces it · × unpins');
+  return tr('hint.show', '← → preview · S shows the focused day');
 }
 
 /**
@@ -173,7 +188,7 @@ export function createRecentImageryPanel({
 
   // ---- build: every block exists from the start, in its final order ----
   const root = el('section', 'recent-imagery-readout');
-  root.setAttribute('aria-label', 'Recent imagery');
+  root.setAttribute('aria-label', tr('panel', 'Recent imagery'));
 
   const actionsHost = el('div', 'ri-block ri-actions-row', root);
   actionsHost.id = 'ri-actions';
@@ -191,10 +206,18 @@ export function createRecentImageryPanel({
   noticeText.id = 'ri-notice-text';
   noticeText.setAttribute('role', 'status');
   noticeText.setAttribute('aria-live', 'polite');
-  const zoomIn = el('button', 'data-toggle-chip ri-zoom-in', notice, 'ZOOM IN');
+  const zoomIn = el(
+    'button',
+    'data-toggle-chip ri-zoom-in',
+    notice,
+    tr('zoomIn', 'ZOOM IN'),
+  );
   zoomIn.id = 'ri-zoom-in';
   zoomIn.type = 'button';
-  zoomIn.title = 'Fly in until the view fits the 1,000 km limit';
+  zoomIn.title = tr(
+    'zoomIn.title',
+    'Fly in until the view fits the 1,000 km limit',
+  );
 
   const strip = el('div', 'ri-block ri-strip', root);
   strip.id = 'ri-strip';
@@ -203,7 +226,10 @@ export function createRecentImageryPanel({
   strip.setAttribute('aria-orientation', 'horizontal');
   strip.setAttribute(
     'aria-label',
-    'Imagery days, newest first · arrows move, S or A and B pin',
+    tr(
+      'strip.label',
+      'Imagery days, newest first · arrows move, S or A and B pin',
+    ),
   );
   strip.setAttribute('aria-keyshortcuts', 'A B S');
   const stripEmpty = el('div', 'ri-strip-empty', strip);
@@ -213,7 +239,7 @@ export function createRecentImageryPanel({
 
   const selection = el('section', 'ri-block ri-selection', root);
   selection.id = 'ri-selection';
-  selection.setAttribute('aria-label', 'On the map');
+  selection.setAttribute('aria-label', tr('onMap', 'On the map'));
   const modeGroup = el('div', 'ri-mode', selection);
   modeGroup.id = 'ri-mode';
   modeGroup.setAttribute('role', 'radiogroup');
@@ -222,7 +248,7 @@ export function createRecentImageryPanel({
     MODE_LABELS.map(([mode, label]) => {
       const node = el('button', 'data-toggle-chip ri-mode-btn', modeGroup);
       node.type = 'button';
-      node.textContent = label;
+      node.textContent = tr(`mode.${mode}`, label);
       node.dataset.mode = mode;
       node.setAttribute('role', 'radio');
       return [mode, node];
@@ -255,13 +281,18 @@ export function createRecentImageryPanel({
     step: '1',
     value: '100',
   });
-  opacity.setAttribute('aria-label', 'Imagery opacity');
+  opacity.setAttribute('aria-label', tr('opacity', 'Imagery opacity'));
   opacityLabel.htmlFor = 'ri-opacity';
   // Its slot is always there; it is only usable while a swipe is live.
-  const swap = el('button', 'data-toggle-chip ri-swap', controls, 'SWAP');
+  const swap = el(
+    'button',
+    'data-toggle-chip ri-swap',
+    controls,
+    tr('swap', 'SWAP'),
+  );
   swap.id = 'ri-swap';
   swap.type = 'button';
-  swap.title = 'Trade the two sides of the divider';
+  swap.title = tr('swap.title', 'Trade the two sides of the divider');
   const exportHost = el('div', 'ri-exports', controls);
   const exports = createRailCardBlocks({
     container: exportHost,
@@ -318,8 +349,8 @@ export function createRecentImageryPanel({
         actions: [
           {
             id: 'select-box',
-            label: 'SELECT BOX',
-            title: 'Drag a box on the map (Esc cancels)',
+            label: tr('selectBox', 'SELECT BOX'),
+            title: tr('selectBox.title', 'Drag a box on the map (Esc cancels)'),
             onClick: () => {
               exportError = null;
               if (tool?.isActive()) tool.cancel('toggle');
@@ -328,8 +359,8 @@ export function createRecentImageryPanel({
           },
           {
             id: 'use-view',
-            label: 'USE VIEW',
-            title: 'Use the current view as the box',
+            label: tr('useView', 'USE VIEW'),
+            title: tr('useView.title', 'Use the current view as the box'),
             onClick: () => {
               exportError = null;
               layer.useCurrentView(viewer);
@@ -337,8 +368,8 @@ export function createRecentImageryPanel({
           },
           {
             id: 'clear',
-            label: 'CLEAR',
-            title: 'Forget the box and its images',
+            label: tr('clear', 'CLEAR'),
+            title: tr('clear.title', 'Forget the box and its images'),
             disabled: !snapshot.box && !snapshot.boxError,
             onClick: () => {
               exportError = null;
@@ -366,7 +397,9 @@ export function createRecentImageryPanel({
   function renderNotice() {
     const warning = snapshot.boxError || snapshot.error || exportError;
     const text =
-      warning || snapshot.notice || (snapshot.borrowedEsri ? ESRI_NOTE : '');
+      warning ||
+      snapshot.notice ||
+      (snapshot.borrowedEsri ? tr('esriNote', ESRI_NOTE) : '');
     set(noticeText, 'textContent', text);
     attribute(noticeText, 'title', text);
     toggle(notice, 'warn', Boolean(warning));
@@ -388,7 +421,12 @@ export function createRecentImageryPanel({
     entry.thumb = el('div', 'ri-thumb', card);
     entry.placeholder = el('span', 'ri-thumb-text', entry.thumb);
     entry.flag = el('span', 'ri-card-flag', entry.thumb);
-    entry.start = el('span', 'ri-card-start', entry.thumb, 'START HERE');
+    entry.start = el(
+      'span',
+      'ri-card-start',
+      entry.thumb,
+      tr('startHere', 'START HERE'),
+    );
     entry.date = el('div', 'ri-card-date', card);
     entry.sensor = el('div', 'ri-card-sensor', card);
     entry.cloud = el('div', 'ri-card-cloud', card);
@@ -432,13 +470,17 @@ export function createRecentImageryPanel({
     }
     if (entry.image) set(entry.image, 'hidden', !shown);
     set(entry.placeholder, 'hidden', shown);
-    set(entry.placeholder, 'textContent', PLACEHOLDERS[status] || 'Checking');
+    set(
+      entry.placeholder,
+      'textContent',
+      tr(`placeholder.${status}`, PLACEHOLDERS[status] || 'Checking'),
+    );
     if (entry.thumb.dataset.status !== status)
       entry.thumb.dataset.status = status;
     const flag = candidate.preview
-      ? 'PREVIEW'
+      ? tr('preview', 'PREVIEW')
       : candidate.pending
-        ? 'LOADING'
+        ? tr('loading', 'LOADING')
         : '';
     set(entry.flag, 'textContent', flag);
     set(entry.flag, 'hidden', !flag);
@@ -448,8 +490,11 @@ export function createRecentImageryPanel({
       set(
         entry.start,
         'title',
-        START_HERE_TITLES[snapshot.recommended.reason] ||
-          'Newest day with imagery for this box',
+        tr(
+          `startTitle.${snapshot.recommended.reason}`,
+          START_HERE_TITLES[snapshot.recommended.reason] ||
+            'Newest day with imagery for this box',
+        ),
       );
     set(entry.date, 'textContent', day);
     set(entry.sensor, 'textContent', sensorLine(candidate.product));
@@ -512,14 +557,14 @@ export function createRecentImageryPanel({
       candidates.length
         ? ''
         : !snapshot.box
-          ? 'No box'
+          ? tr('empty.noBox', 'No box')
           : snapshot.searching
             ? 'Searching'
             : snapshot.hiddenCount
-              ? 'Every day is empty here'
+              ? tr('empty.allEmpty', 'Every day is empty here')
               : !snapshot.sources.hls && !snapshot.sources.viirs
-                ? 'Sources off'
-                : 'No imagery',
+                ? tr('empty.sourcesOff', 'Sources off')
+                : tr('empty.noImagery', 'No imagery'),
     );
     set(stripEmpty, 'hidden', candidates.length > 0);
     if (candidates[snapshot.focusIndex])
@@ -598,7 +643,7 @@ export function createRecentImageryPanel({
         'textContent',
         ab ? slotId.toUpperCase() : slotId === 'a' ? 'IMAGE' : 'VS',
       );
-      let text = 'Not set';
+      let text = tr('notSet', 'Not set');
       if (basemapRow) text = 'Basemap';
       else if (image?.label)
         text = `${image.sourceOff ? 'Source off · ' : ''}${image.label}${
@@ -625,7 +670,9 @@ export function createRecentImageryPanel({
       attribute(
         unpin,
         'aria-label',
-        ab ? `Unpin ${slotId.toUpperCase()}` : 'Unpin the image',
+        ab
+          ? `Unpin ${slotId.toUpperCase()}`
+          : tr('unpin.title', 'Unpin the image'),
       );
       set(unpin, 'title', unpin.getAttribute('aria-label'));
     }
@@ -658,7 +705,11 @@ export function createRecentImageryPanel({
         type: 'actions',
         actions: ['a', 'b'].map((slotId) => ({
           id: `export-${slotId}`,
-          label: ab ? `EXPORT ${slotId.toUpperCase()}` : 'EXPORT',
+          label: ab
+            ? tr('exportSlot', `EXPORT ${slotId.toUpperCase()}`, {
+                slot: slotId.toUpperCase(),
+              })
+            : tr('export', 'EXPORT'),
           title: `Download ${ab ? slotId.toUpperCase() : 'the image'} as a PNG`,
           disabled: !exportTarget(slotId) || exporting.has(slotId),
           onClick: () => void exportImage(slotId),
@@ -706,8 +757,15 @@ export function createRecentImageryPanel({
         });
       });
     }
-    const reason = START_HERE_REASONS[snapshot.recommended?.reason];
-    if (reason) lines.push({ id: 'start', text: `START HERE · ${reason}` });
+    const reasonId = snapshot.recommended?.reason;
+    const reason = START_HERE_REASONS[reasonId];
+    if (reason)
+      lines.push({
+        id: 'start',
+        text: tr('startHere.reason', `START HERE · ${reason}`, {
+          reason: tr(`startReason.${reasonId}`, reason),
+        }),
+      });
     for (const [index, note] of snapshot.notes.entries())
       lines.push({ id: `note-${index}`, text: note, muted: true });
     if (
@@ -718,7 +776,10 @@ export function createRecentImageryPanel({
     )
       lines.push({
         id: 'overview-scale',
-        text: 'Daily overview shows little detail in a box this small',
+        text: tr(
+          'overviewNote',
+          'Daily overview shows little detail in a box this small',
+        ),
         muted: true,
       });
     lines.push({
@@ -747,9 +808,12 @@ export function createRecentImageryPanel({
               {
                 id: 'toggle-empty',
                 label: showing
-                  ? 'HIDE EMPTY DAYS'
+                  ? tr('hideEmpty', 'HIDE EMPTY DAYS')
                   : `SHOW EMPTY DAYS · ${hidden}`,
-                title: 'Days the probe found empty in this box',
+                title: tr(
+                  'emptyDays.title',
+                  'Days the probe found empty in this box',
+                ),
                 disabled: !showing && !hidden,
                 onClick: () => layer.setShowUnavailable(!showing),
               },
@@ -773,8 +837,16 @@ export function createRecentImageryPanel({
     const describe = (c) => (c ? `${sensorLine(c.product)} · ${c.day}` : '');
     // The two sides as [label, title, spoken name]; SWAP trades them.
     const sides = [
-      basemap ? ['IMAGE', describe(a), 'image'] : ['A', describe(a), 'A'],
-      basemap ? ['BASEMAP', 'The basemap', 'basemap'] : ['B', describe(b), 'B'],
+      basemap
+        ? [tr('mode.image', 'IMAGE'), describe(a), 'image']
+        : ['A', describe(a), 'A'],
+      basemap
+        ? [
+            tr('basemap', 'BASEMAP'),
+            tr('basemap.title', 'The basemap'),
+            'basemap',
+          ]
+        : ['B', describe(b), 'B'],
     ];
     const [before, after] = swapped ? [sides[1], sides[0]] : sides;
     const signature = live
@@ -799,8 +871,8 @@ export function createRecentImageryPanel({
       beforeTitle: before[1],
       afterTitle: after[1],
       ariaLabel: basemap
-        ? 'Recent imagery against the basemap divider'
-        : 'Recent imagery A and B divider',
+        ? tr('divider.basemap', 'Recent imagery against the basemap divider')
+        : tr('divider.ab', 'Recent imagery A and B divider'),
       formatValueText: (leftPercent, rightPercent) =>
         `${before[2][0].toUpperCase()}${before[2].slice(1)} ${leftPercent} percent, ${after[2]} ${rightPercent} percent`,
       getViewportWidth: () =>

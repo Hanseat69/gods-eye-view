@@ -40,9 +40,12 @@ identical to the marked template text, the provider registry's descriptions
 and the first-run mission text.
 
 Text another module owns (layer names, layer state words and group names in
-`src/ui/layerPanel.js`) is translated by key with its English passed as
-`params.default`; those keys live under `OWNED_PREFIXES` (`layers.`) and exist
-only in the other locales, so the English stays in one place.
+`src/ui/layerPanel.js`, and the Recent Imagery readout in
+`src/ui/recentImagery.js`) is translated by key with its English passed as
+`params.default`; those keys live under `OWNED_PREFIXES` (`layers.`,
+`imagery.`) and exist only in the other locales, so the English stays in one
+place. Module-level constants stay English and are translated where they are
+shown, because modules load before the page locale is set.
 
 Translated so far: the first-run launcher, Provider Settings (rows, status
 and confirmations; server error messages stay English), panel titles and the
@@ -50,8 +53,10 @@ expand/collapse labels built from them, the Data Layers rows (names, groups,
 ON/OFF and feed states, last-update times), the Display panel controls, the
 command dock (Location, Visual Presets, styles and their descriptions, map
 source), the globe action buttons, and the voice control's labels, help and
-error tray. The HUD, Context, CCTV, Radio, Weather and Scenes panel bodies,
-voice responses and server messages remain English.
+error tray, and the Context, CCTV, Scenes, Radio, local RTL-SDR, Weather and
+Recent Imagery panels (controls, states, hints and status lines). The HUD,
+scene-director run messages, CCTV and imagery technical detail lines, Radio
+Browser category names, voice responses and server messages remain English.
 
 ## God's Eye View in conversations — October 2, 2026
 

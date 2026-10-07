@@ -19,6 +19,15 @@ const templates = readdirSync(templatesDir)
     html: readFileSync(new URL(name, templatesDir), 'utf8'),
   }));
 
+// Markup text as the browser reads it, for the entities the templates use.
+const decodeEntities = (text) =>
+  text
+    .replaceAll('&lt;', '<')
+    .replaceAll('&gt;', '>')
+    .replaceAll('&quot;', '"')
+    .replaceAll('&#39;', "'")
+    .replaceAll('&amp;', '&');
+
 const placeholders = (text) =>
   [...String(text).matchAll(/\{(\w+)\}/g)].map(([, name]) => name).sort();
 
@@ -60,7 +69,11 @@ test('marked template text is the English catalog text', () => {
     assert.equal(leaves.length, all, `${name}: data-i18n on a non-leaf`);
     for (const [, , key, text] of leaves) {
       assert.ok(Object.hasOwn(EN, key), `${name}: unknown key ${key}`);
-      assert.equal(text, EN[key], `${name}: ${key} drifted from the catalog`);
+      assert.equal(
+        decodeEntities(text),
+        EN[key],
+        `${name}: ${key} drifted from the catalog`,
+      );
       marked += 1;
     }
     for (const [tag] of html.matchAll(
@@ -112,6 +125,15 @@ test('every literal key the adopting modules ask for exists', () => {
     '../ui/layerPanel.js',
     '../voice/control.js',
     '../voice/realtimeController.js',
+    '../ui/radioPresentation.js',
+    '../ui/localSdrPresentation.js',
+    '../ui/cctvPresentation.js',
+    '../ui/cctvFrames.js',
+    '../ui/cctvCalibration.js',
+    '../ui/scenePresentation.js',
+    '../ui/sceneControls.js',
+    '../ui/weatherPanel.js',
+    '../ui/sceneSharing.js',
   ]) {
     const source = readFileSync(new URL(file, import.meta.url), 'utf8');
     for (const [, key] of source.matchAll(/\bt\(\s*'([^']+)'/g))
@@ -121,7 +143,7 @@ test('every literal key the adopting modules ask for exists', () => {
         `${file} asks for unknown key ${key}`,
       );
     for (const [, key] of source.matchAll(
-      /'((?:keySetup|firstRun|panel|display|voice)\.[\w.-]+)'/g,
+      /'((?:keySetup|firstRun|panel|display|voice|radio|sdr|cctv|scenes|weather|context)\.[\w.-]+)'/g,
     ))
       assert.ok(Object.hasOwn(EN, key), `${file} names unknown key ${key}`);
   }
