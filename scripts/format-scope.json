@@ -900,5 +900,6 @@
   "src/i18n/catalogs.test.mjs",
   "src/ui/languagePicker.test.mjs",
   "scripts/launch.mjs",
-  "src/tooling/launch.test.mjs"
+  "src/tooling/launch.test.mjs",
+  "src/ui/readableMode.test.mjs"
 ]

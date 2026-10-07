@@ -13,6 +13,8 @@ const EN = Object.freeze({
   // language and are not translated.
   'language.label': 'Language',
   'language.select': 'Interface language',
+  'readable.label': 'Readable',
+  'readable.title': 'Larger, higher-contrast text',
 
   // Panel headers.
   'panel.dataLayers': 'DATA LAYERS',
@@ -102,6 +104,8 @@ const EN = Object.freeze({
 const DE = Object.freeze({
   'language.label': 'Sprache',
   'language.select': 'Sprache der Oberfläche',
+  'readable.label': 'Gut lesbar',
+  'readable.title': 'Größere Schrift mit stärkerem Kontrast',
 
   'panel.dataLayers': 'DATENEBENEN',
   'panel.scenes': 'SZENEN',

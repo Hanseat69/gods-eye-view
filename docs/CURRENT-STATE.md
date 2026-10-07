@@ -1,5 +1,25 @@
 # God's Eye View Current State
 
+## Readable mode — October 7, 2026
+
+Display > Readable (`#readable-toggle`, `src/ui/readableMode.js`) sets
+`data-readable` on the root element. `src/ui/styles/readable.css`, imported
+after `cyber.css` so it wins over every layout, then raises
+`--ui-small-text-scale` to 1.3, lifts `--text-secondary` and `--text-dim`,
+makes `--glass-bg` denser, outlines text with a dark shadow and removes the
+HUD's opacity fades. Cyber keeps its own tint at the higher contrast.
+
+Every `font-size` of 12px or 0.75rem and below in the panel stylesheets is
+written `calc(N * var(--ui-small-text-scale, 1))`, so the default rendering is
+unchanged. Three places keep fixed sizes: `cockpit.css` (instrument plates),
+`voice-cost.css` (its readout must fit the voice button) and the
+`#cesium-credits` rule, whose 10px drives the measured attribution height.
+`src/ui/readableMode.test.mjs` fails when new small text skips the token.
+
+The choice is stored in `localStorage['gev:readable-ui:v1']` (off removes it);
+`?readable=1` and `?readable=0` apply to one load. Switching applies at once
+and dispatches a window resize so rails re-measure.
+
 ## Interface language — October 3, 2026
 
 Display > Language switches the interface between English and Deutsch. The

@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+- Read the interface more easily. Display > Readable enlarges small panel,
+  dock and HUD text by 30%, raises secondary text contrast, makes panel
+  backgrounds denser and outlines text drawn over the globe. The choice is
+  stored per browser (`gev:readable-ui:v1`); `?readable=1` or `?readable=0`
+  sets it for one load. Off by default, so the standard look is unchanged:
+  small font sizes are now written against one `--ui-small-text-scale` token
+  that is 1 unless readable mode is on.
+
 - Start with one step: `npm start`, or a double click on `Start-Windows.bat`,
   `Start-Mac.command` or `start.sh`, checks Node, installs dependencies when
   they are missing or older than the lockfile, picks a free local port, starts
