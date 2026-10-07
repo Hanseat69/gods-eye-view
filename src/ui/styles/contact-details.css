@@ -95,3 +95,10 @@
 .contact-details-link:focus-visible {
   border-color: var(--accent);
 }
+
+.contact-details-photo-fallback {
+  display: inline-block;
+  margin-top: 4px;
+  color: var(--accent);
+  font-size: calc(10px * var(--ui-small-text-scale, 1));
+}

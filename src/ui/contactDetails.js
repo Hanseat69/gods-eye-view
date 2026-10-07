@@ -153,21 +153,15 @@ export function startContactDetails({
       .then((result) => {
         if (controller.signal.aborted || hex !== photoHex) return;
         if (!result?.found || !result.thumbnail || !result.link) {
-          showPhotoMessage(t('contact.noPhoto'));
+          showPhotoMessage(
+            t(
+              result?.unavailable
+                ? 'contact.photoUnavailable'
+                : 'contact.noPhoto',
+            ),
+          );
           return;
         }
-        const anchor = element(documentRef, 'a', 'contact-details-photo-link');
-        anchor.href = result.link;
-        anchor.target = '_blank';
-        anchor.rel = 'noopener noreferrer';
-        const image = element(documentRef, 'img');
-        image.src = result.thumbnail;
-        image.alt = t('contact.photoAlt', { title: title.textContent });
-        image.loading = 'lazy';
-        image.referrerPolicy = 'no-referrer';
-        if (result.width) image.width = result.width;
-        if (result.height) image.height = result.height;
-        anchor.append(image);
         const caption = element(
           documentRef,
           'figcaption',
@@ -176,11 +170,45 @@ export function startContactDetails({
             ? t('contact.photoCredit', { name: result.photographer })
             : t('contact.photoSource'),
         );
+        const anchor = element(documentRef, 'a', 'contact-details-photo-link');
+        anchor.href = result.link;
+        anchor.target = '_blank';
+        anchor.rel = 'noopener';
+        const image = element(documentRef, 'img');
+        image.alt = t('contact.photoAlt', { title: title.textContent });
+        if (result.width) image.width = result.width;
+        if (result.height) image.height = result.height;
+        // A thumbnail the browser cannot load (blocked, offline, removed)
+        // becomes a plain link to the photo page instead of a broken image.
+        image.addEventListener('error', () => {
+          if (hex !== photoHex) return;
+          const fallback = element(
+            documentRef,
+            'a',
+            'contact-details-photo-fallback',
+            t('contact.photoOpen'),
+          );
+          fallback.href = result.link;
+          fallback.target = '_blank';
+          fallback.rel = 'noopener';
+          photo.replaceChildren(
+            element(
+              documentRef,
+              'div',
+              'contact-details-note',
+              t('contact.photoLoadFailed'),
+            ),
+            fallback,
+            caption,
+          );
+        });
+        image.src = result.thumbnail;
+        anchor.append(image);
         photo.replaceChildren(anchor, caption);
       })
       .catch(() => {
         if (!controller.signal.aborted && hex === photoHex)
-          showPhotoMessage(t('contact.noPhoto'));
+          showPhotoMessage(t('contact.photoUnavailable'));
       });
   };
 

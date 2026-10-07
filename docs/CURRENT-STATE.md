@@ -14,7 +14,9 @@ without deselecting.
 Aircraft show type, registration, callsign, operator, route and ICAO hex, a
 Planespotters.net photo through `/api/aircraft-photo/<hex>`
 (`server/providers/aircraft/photos.js`) with its photographer credit and photo
-page link, and links to Flightradar24 (callsign, else registration), ADS-B
+page link (answers cached 24 hours; the browser loads the image from
+Planespotters itself, and an image it cannot load becomes a link to the photo
+page), and links to Flightradar24 (callsign, else registration), ADS-B
 Exchange and Planespotters. Vessels show type, MMSI, IMO and destination and
 link to MarineTraffic, VesselFinder (by IMO, now part of the vessel context)
 and MyShipTracking; there is no openly licensed vessel photo source.

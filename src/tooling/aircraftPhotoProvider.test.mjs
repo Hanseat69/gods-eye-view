@@ -132,5 +132,44 @@ test('upstream failures answer "no photo" without throwing', async () => {
       ),
     }),
   );
-  assert.deepEqual((await request('/3c6444')).body, { found: false });
+  assert.deepEqual((await request('/3c6444')).body, {
+    found: false,
+    unavailable: true,
+  });
+});
+
+test('answers are reused for 24 hours at most', async () => {
+  let clock = 1_000_000;
+  let calls = 0;
+  const request = serve(
+    aircraftPhotoProxy({
+      now: () => clock,
+      fetchImpl: async () => {
+        calls += 1;
+        return { ok: true, text: async () => JSON.stringify({ photos: [] }) };
+      },
+      cachePath: path.join(
+        mkdtempSync(path.join(os.tmpdir(), 'gev-photo-')),
+        'cache.json',
+      ),
+    }),
+  );
+  await request('/3c6444');
+  clock += 24 * 3600_000 - 1;
+  await request('/3c6444');
+  assert.equal(calls, 1, 'still fresh just under 24 hours');
+  clock += 2;
+  await request('/3c6444');
+  assert.equal(calls, 2, 'asked again after 24 hours');
+});
+
+test('Planespotters URLs are passed on unchanged', () => {
+  const link =
+    'https://www.planespotters.net/photo/1981050/d-aibd-lufthansa-airbus-a319-112?utm_source=api';
+  const src = 'https://t.plnspttrs.net/09561/1981050_77e29380db_280.jpg';
+  const parsed = parsePlanespottersPhoto({
+    photos: [{ ...PHOTO, link, thumbnail_large: { src } }],
+  });
+  assert.equal(parsed.link, link);
+  assert.equal(parsed.thumbnail, src);
 });

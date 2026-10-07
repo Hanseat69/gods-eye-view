@@ -6,8 +6,11 @@ import { promises as fsp } from 'node:fs';
  * thumbnail with its photographer and photo page, for the contact details
  * card. Planespotters' public API asks callers to identify themselves with a
  * contact URL, to credit the photographer and to link the photo page; the
- * card does both. Results (including "no photo") are cached for a week and
- * persisted so restarts do not repeat lookups.
+ * card does both. Planespotters allows API answers to be cached for at most
+ * 24 hours; answers (including "no photo") are cached that long and persisted
+ * so restarts do not repeat lookups. Image files are never fetched, stored or
+ * proxied here: the browser loads them from Planespotters, as its terms
+ * require.
  *
  * Only Planespotters image and page URLs are passed on, so a changed or
  * hostile response cannot point the browser anywhere else.
@@ -16,21 +19,28 @@ import { promises as fsp } from 'node:fs';
 export const AIRCRAFT_PHOTO_ROUTE = '/api/aircraft-photo';
 export const PLANESPOTTERS_USER_AGENT =
   'gods-eye-view (+https://github.com/bilawalsidhu/gods-eye-view)';
-const TTL_MS = 7 * 24 * 3600_000;
+const TTL_MS = 24 * 3600_000;
 const MAX_BODY_BYTES = 64 * 1024;
 const MAX_UPSTREAM_PER_MINUTE = 30;
 const IMAGE_HOST = /^([a-z0-9-]+\.)*plnspttrs\.net$/;
+/** Lookup could not be answered now (upstream error, timeout, local limit). */
+const UNAVAILABLE = Symbol('unavailable');
 const PAGE_HOST = /^(www\.)?planespotters\.net$/;
 
-/** Accept only an https URL on the given host pattern; anything else is null. */
+/**
+ * Accept only an https URL on the given host pattern; anything else is null.
+ * An accepted URL is returned exactly as given: Planespotters requires its
+ * URLs to be used unchanged.
+ */
 function safeUrl(value, hostPattern) {
+  if (typeof value !== 'string') return null;
   try {
-    const url = new URL(String(value));
+    const url = new URL(value);
     return url.protocol === 'https:' &&
       hostPattern.test(url.hostname) &&
       !url.username &&
       !url.password
-      ? url.href
+      ? value
       : null;
   } catch {
     return null;
@@ -125,7 +135,7 @@ export function aircraftPhotoProxy({
   async function lookup(hex) {
     if (fresh(cache[hex])) return cache[hex].photo;
     if (inflight.has(hex)) return inflight.get(hex);
-    if (!allowUpstream()) return null;
+    if (!allowUpstream()) return UNAVAILABLE;
     const pending = (async () => {
       try {
         const response = await fetchImpl(
@@ -139,15 +149,15 @@ export function aircraftPhotoProxy({
             },
           },
         );
-        if (!response.ok) return null;
+        if (!response.ok) return UNAVAILABLE;
         const text = await response.text();
-        if (text.length > MAX_BODY_BYTES) return null;
+        if (text.length > MAX_BODY_BYTES) return UNAVAILABLE;
         const photo = parsePlanespottersPhoto(JSON.parse(text));
         cache[hex] = { at: now(), photo };
         dirty = true;
         return photo;
       } catch {
-        return fresh(cache[hex]) ? cache[hex].photo : null;
+        return fresh(cache[hex]) ? cache[hex].photo : UNAVAILABLE;
       } finally {
         inflight.delete(hex);
       }
@@ -175,6 +185,8 @@ export function aircraftPhotoProxy({
       try {
         await loadOnce();
         const photo = await lookup(hex);
+        if (photo === UNAVAILABLE)
+          return send(200, { found: false, unavailable: true });
         return send(200, photo ? { found: true, ...photo } : { found: false });
       } catch {
         return send(500, { error: 'aircraft photo proxy error' });
