@@ -203,11 +203,8 @@ export class SceneControls {
   }
 
   updateStatus(text) {
-    // The director's idle status is the one it reports most; its run
-    // messages stay in English.
     if (!this.destroyed && this.elements.status)
-      this.elements.status.textContent =
-        text === 'Ready' ? t('scenes.ready') : text;
+      this.elements.status.textContent = text;
   }
 
   updateRuntime(text) {

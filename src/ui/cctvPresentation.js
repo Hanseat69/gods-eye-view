@@ -164,7 +164,8 @@ export function _renderCctvState(state) {
           ? 'cctv.projection.monitor'
           : 'cctv.projection.none',
       );
-      this._cctvMeta.textContent = `${activeCamera.city} · HDG ${Math.round(activeCamera.headingDeg)}° · FOV ${Math.round(activeCamera.fovDeg)}° · RANGE ${Math.round(activeCamera.rangeM)}m · ${projLabel}${calBadge ? ` · ${calBadge}` : ''} · ${provider}${credit}${statusMsg}`;
+      const field = (label) => t(`cctv.field.${label}`, { default: label });
+      this._cctvMeta.textContent = `${activeCamera.city} · ${field('HDG')} ${Math.round(activeCamera.headingDeg)}° · ${field('FOV')} ${Math.round(activeCamera.fovDeg)}° · ${field('RANGE')} ${Math.round(activeCamera.rangeM)}m · ${projLabel}${calBadge ? ` · ${calBadge}` : ''} · ${provider}${credit}${statusMsg}`;
     } else if (cameras.length > 0) {
       this._cctvMeta.textContent = enabled
         ? t('cctv.meta.loadedClick', { count: cameras.length })

@@ -529,7 +529,7 @@ export function createRecentImageryPanel({
     attribute(
       card,
       'aria-label',
-      `${day} · ${sensorLine(candidate.product)} · ${cloudText(candidate)}${recommended ? ' · start here' : ''}${state}`,
+      `${day} · ${sensorLine(candidate.product)} · ${cloudText(candidate)}${recommended ? tr('suffix.startHere', ' · start here') : ''}${state}`,
     );
   }
 
@@ -641,16 +641,20 @@ export function createRecentImageryPanel({
       set(
         tag,
         'textContent',
-        ab ? slotId.toUpperCase() : slotId === 'a' ? 'IMAGE' : 'VS',
+        ab
+          ? slotId.toUpperCase()
+          : slotId === 'a'
+            ? tr('mode.image', 'IMAGE')
+            : tr('tag.versus', 'VS'),
       );
       let text = tr('notSet', 'Not set');
-      if (basemapRow) text = 'Basemap';
+      if (basemapRow) text = tr('basemapRow', 'Basemap');
       else if (image?.label)
-        text = `${image.sourceOff ? 'Source off · ' : ''}${image.label}${
+        text = `${image.sourceOff ? tr('sourceOffPrefix', 'Source off · ') : ''}${image.label}${
           image.preview
-            ? ' · preview'
+            ? tr('suffix.preview', ' · preview')
             : image.candidate && !image.drapable && !image.sourceOff
-              ? ' · loading'
+              ? tr('suffix.loading', ' · loading')
               : ''
         }`;
       set(value, 'textContent', text);
@@ -733,7 +737,14 @@ export function createRecentImageryPanel({
     if (snapshot.box)
       lines.push({
         id: 'box',
-        text: `Box ${kmText(snapshot.boxSizeKm?.width)} × ${kmText(snapshot.boxSizeKm?.height)} km`,
+        text: tr(
+          'box',
+          `Box ${kmText(snapshot.boxSizeKm?.width)} × ${kmText(snapshot.boxSizeKm?.height)} km`,
+          {
+            width: kmText(snapshot.boxSizeKm?.width),
+            height: kmText(snapshot.boxSizeKm?.height),
+          },
+        ),
       });
     if (focus) {
       lines.push({ id: 'readout', text: snapshot.readout || '' });
@@ -741,14 +752,18 @@ export function createRecentImageryPanel({
       if (focus.timeRange?.start) {
         const start = utcTime(focus.timeRange.start);
         const end = utcTime(focus.timeRange.end || focus.timeRange.start);
-        times.push(`Acquired ${start === end ? start : `${start}–${end}`}`);
-      } else if (focus.thumbnail?.acquisitionTime)
-        times.push(`Acquired ${utcTime(focus.thumbnail.acquisitionTime)}`);
-      times.push(`Coverage ${focus.coverage || 'unknown'}`);
+        const time = start === end ? start : `${start}–${end}`;
+        times.push(tr('acquired', `Acquired ${time}`, { time }));
+      } else if (focus.thumbnail?.acquisitionTime) {
+        const time = utcTime(focus.thumbnail.acquisitionTime);
+        times.push(tr('acquired', `Acquired ${time}`, { time }));
+      }
+      const coverage = focus.coverage || tr('unknown', 'unknown');
+      times.push(tr('coverage', `Coverage ${coverage}`, { coverage }));
       lines.push({ id: 'acquired', text: times.join(' · ') });
       (focus.granules || []).forEach((granule, index) => {
         const cloud = Number.isFinite(granule.cloud)
-          ? ` · ${Math.round(granule.cloud)}% cloud`
+          ? ` · ${tr('cloud.one', `${Math.round(granule.cloud)}% cloud`, { min: Math.round(granule.cloud) })}`
           : '';
         lines.push({
           id: `granule-${index}`,
@@ -784,7 +799,10 @@ export function createRecentImageryPanel({
       });
     lines.push({
       id: 'credit',
-      text: 'Imagery: NASA GIBS and Worldview · HLS (Sentinel-2, Landsat 8/9) and VIIRS',
+      text: tr(
+        'attribution',
+        'Imagery: NASA GIBS and Worldview · HLS (Sentinel-2, Landsat 8/9) and VIIRS',
+      ),
       muted: true,
     });
     return lines;
@@ -967,7 +985,11 @@ export function createRecentImageryPanel({
       return true;
     } catch (error) {
       if (!destroyed)
-        exportError = `Export failed · ${error?.message || error}`;
+        exportError = tr(
+          'exportFailed',
+          `Export failed · ${error?.message || error}`,
+          { message: error?.message || error },
+        );
       return false;
     } finally {
       exporting.delete(slotId);

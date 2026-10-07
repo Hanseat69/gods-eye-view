@@ -1,6 +1,12 @@
 import { t } from '../i18n/index.js';
 
 /** A playback verb (Play, Pause, Resume) in the page language. */
+/** A Radio Browser category name in the page language. */
+const categoryLabel = (category) =>
+  category?.id === 'all'
+    ? t('radio.category.all')
+    : t(`radiocat.${category?.id}`, { default: category?.label });
+
 const actionText = (action) =>
   t(`radio.action.${action.toLowerCase()}`, { default: action });
 
@@ -141,8 +147,7 @@ export function renderRadioState(state) {
         ...state.categories.map((category) => {
           const option = document.createElement('option');
           option.value = category.id;
-          const label =
-            category.id === 'all' ? t('radio.category.all') : category.label;
+          const label = categoryLabel(category);
           option.textContent = `● ${label} (${category.count})`;
           option.dataset.radioColor = category.color;
           option.style.color = category.color;
@@ -172,7 +177,7 @@ export function renderRadioState(state) {
         ? t('radio.band.directory')
         : t('radio.band.category', {
             category: String(
-              activeCategory?.label || state.filter,
+              (activeCategory && categoryLabel(activeCategory)) || state.filter,
             ).toUpperCase(),
           });
   }

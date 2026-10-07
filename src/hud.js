@@ -35,6 +35,12 @@ import {
   DEFAULT_HUD_LAYOUT,
   normalizeHudLayout,
 } from './hudLayouts.js';
+import { t as translate } from './i18n/index.js';
+
+const HTML_ENTITIES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
+/** Translated text for the HUD markup, escaped so no locale can break it. */
+const markupText = (key, params) =>
+  translate(key, params).replace(/[&<>"]/g, (char) => HTML_ENTITIES[char]);
 
 /** Color palettes keyed by shader mode; applied as CSS custom properties. */
 const HUD_COLORS = {
@@ -189,28 +195,28 @@ export class IntelHUD {
       <div class="hud-sonar" aria-hidden="true"></div>
 
       <div class="hud-top-bar">
-        <span class="hud-top-bar-left">TOP SECRET // SI-TK // NOFORN</span>
+        <span class="hud-top-bar-left">${markupText('hud.classification')}</span>
         <span class="hud-top-bar-center">${this._missionId}</span>
-        <span class="hud-top-bar-right">PAGE 1/1</span>
+        <span class="hud-top-bar-right">${markupText('hud.page')}</span>
       </div>
 
       <div class="hud-corner hud-top-left">
         <div class="hud-bracket">┌</div>
         <div class="hud-content">
-          <div class="hud-classification">TOP SECRET // SI-TK // NOFORN</div>
+          <div class="hud-classification">${markupText('hud.classification')}</div>
           <div class="hud-system">${this._missionId}  ${this._sensorId}</div>
           <div class="hud-mode" id="hud-mode">NORMAL</div>
           <div class="hud-summary-wrap">
-            <div class="hud-summary-label">SUMMARY</div>
-            <div class="hud-summary" id="hud-summary">Awaiting telemetry...</div>
+            <div class="hud-summary-label">${markupText('hud.summary')}</div>
+            <div class="hud-summary" id="hud-summary">${markupText('hud.awaiting')}</div>
           </div>
         </div>
       </div>
 
       <div class="hud-corner hud-top-right">
         <div class="hud-content" style="text-align:right">
-          <div class="hud-rec"><span id="hud-rec-dot">●</span> REC  <span id="hud-timestamp">2026-01-01 00:00:00Z</span></div>
-          <div class="hud-orbital">ORB: ${this._orbitNum}  PASS: DESC-${this._passNum}</div>
+          <div class="hud-rec"><span id="hud-rec-dot">●</span> ${markupText('hud.rec')}  <span id="hud-timestamp">2026-01-01 00:00:00Z</span></div>
+          <div class="hud-orbital">${markupText('hud.orbit', { orbit: this._orbitNum, pass: this._passNum })}</div>
         </div>
         <div class="hud-bracket">┐</div>
       </div>
@@ -226,7 +232,7 @@ export class IntelHUD {
       <div class="hud-corner hud-bottom-right">
         <div class="hud-content" style="text-align:right">
           <div id="hud-gsd">GSD: --m  NIIRS: --</div>
-          <div id="hud-alt">ALT: --m   SUN: --° EL</div>
+          <div id="hud-alt">${markupText('hud.alt', { alt: '--', sun: '--' })}</div>
           <div id="hud-ais-vessel" class="hud-ais-vessel">AIS: --</div>
         </div>
         <div class="hud-bracket">┘</div>
@@ -393,7 +399,10 @@ export class IntelHUD {
     const altMslM = ellipsoidalToMslDisplayM(altM, geoidN);
     const sunEl = this._estimateSunElevation(latDeg, lonDeg);
     if (altEl)
-      altEl.textContent = `ALT: ${Math.round(altMslM)}m   SUN: ${sunEl.toFixed(1)}° EL`;
+      altEl.textContent = translate('hud.alt', {
+        alt: Math.round(altMslM),
+        sun: sunEl.toFixed(1),
+      });
 
     // Collection timestamp
     const collEl = document.getElementById('hud-coll');
@@ -634,7 +643,7 @@ export class IntelHUD {
    */
   _composeSummary() {
     const m = this._latestMetrics;
-    if (!m) return 'Awaiting telemetry...';
+    if (!m) return translate('hud.awaiting');
 
     const modeEl = document.getElementById('hud-mode');
     const modeLabel = modeEl?.textContent || 'NORMAL';
@@ -655,14 +664,24 @@ export class IntelHUD {
         : `${Math.round(altDisplayM)}M`;
     const winTag = window
       ? `${Math.max(1, Math.round(window.widthKm))}x${Math.max(1, Math.round(window.heightKm))}KM`
-      : 'N/A';
+      : translate('hud.notAvailable');
     // NEAR the nearest catalogued POI at metro range; otherwise the lat/lon sector.
     const localityTag = composeLocalityTag(nearest, m.latDeg, m.lonDeg);
 
     const provenance = hudTelemetryProvenanceTag(
       this._dataManager?.getAll?.() || [],
     );
-    const line = `${modeLabel} ${band} ${localityTag} | ${region} | ALT ${altTag} | WINDOW ${winTag} | SUN ${m.sunEl.toFixed(0)}° | ONA ${m.ona.toFixed(0)}° | ${localTag}`;
+    const line = translate('hud.summaryLine', {
+      mode: modeLabel,
+      band: translate(`hud.band.${band}`),
+      locality: localityTag,
+      region: translate(`hud.region.${region}`),
+      alt: altTag,
+      window: winTag,
+      sun: m.sunEl.toFixed(0),
+      ona: m.ona.toFixed(0),
+      local: localTag,
+    });
     return provenance ? `${line} | ${provenance}` : line;
   }
 

@@ -41,9 +41,9 @@ and the first-run mission text.
 
 Text another module owns (layer names, layer state words and group names in
 `src/ui/layerPanel.js`, and the Recent Imagery readout in
-`src/ui/recentImagery.js`) is translated by key with its English passed as
+`src/ui/recentImagery.js`, and Radio Browser category names) is translated by key with its English passed as
 `params.default`; those keys live under `OWNED_PREFIXES` (`layers.`,
-`imagery.`) and exist only in the other locales, so the English stays in one
+`imagery.`, `radiocat.`) and exist only in the other locales, so the English stays in one
 place. Module-level constants stay English and are translated where they are
 shown, because modules load before the page locale is set.
 
@@ -54,9 +54,13 @@ ON/OFF and feed states, last-update times), the Display panel controls, the
 command dock (Location, Visual Presets, styles and their descriptions, map
 source), the globe action buttons, and the voice control's labels, help and
 error tray, and the Context, CCTV, Scenes, Radio, local RTL-SDR, Weather and
-Recent Imagery panels (controls, states, hints and status lines). The HUD,
-scene-director run messages, CCTV and imagery technical detail lines, Radio
-Browser category names, voice responses and server messages remain English.
+Recent Imagery panels (controls, states, hints, status and detail lines),
+the HUD (classification, readouts and the composed summary line; GSD, NIIRS,
+ONA, MGRS, PAN and AIS stay as the international abbreviations), the scene
+director's status and run messages, and the Radio Browser topic categories
+(`radiocat.`, owned by `src/layers/radio`; most music genres keep their
+names). The AI HUD summary, voice responses and server messages remain
+English: the summary's feed-state tokens are checked in English.
 
 ## God's Eye View in conversations — October 2, 2026
 
