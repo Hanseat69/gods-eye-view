@@ -1,3 +1,4 @@
+import { t } from '../i18n/index.js';
 import { RealtimeConnection } from './realtimeConnection.js';
 import { RealtimeTurns } from './realtimeTurns.js';
 import { RealtimeViewport } from './realtimeViewport.js';
@@ -291,14 +292,14 @@ export class GevRealtimeController extends RealtimeFacade {
     const resolvedDetail =
       status === 'listening' && this.pushToTalkMode
         ? this.pushToTalkKeyHeld
-          ? 'Release Space to send'
-          : 'Hold Space to talk'
+          ? t('voice.releaseToSend')
+          : t('voice.holdToTalk')
         : detail;
     const primaryDetail =
       status === 'error'
-        ? 'VOICE UNAVAILABLE'
+        ? t('voice.unavailable')
         : resolvedDetail ||
-          (status === 'idle' ? 'VOICE STANDBY' : 'VOICE ACTIVE');
+          t(status === 'idle' ? 'voice.standby' : 'voice.active');
     this.ui.detail.textContent = primaryDetail;
     this.ui.detail.title = primaryDetail;
     if (this.ui.errorDetail) {

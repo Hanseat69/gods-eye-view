@@ -1,3 +1,4 @@
+import { t } from '../i18n/index.js';
 import { STYLE_STATUS_LABELS } from './visualPresets.js';
 import { UiLifetime } from './uiLifetime.js';
 import {
@@ -671,7 +672,7 @@ export class VisualSettings {
     const settings = applyCyberSonarSettings(readCyberSonarSettings());
     this._cyberSonarBtn.classList.toggle('active', enabled);
     this._cyberSonarBtn.setAttribute('aria-pressed', String(enabled));
-    this._cyberSonarBtn.textContent = enabled ? 'ON' : 'OFF';
+    this._cyberSonarBtn.textContent = t(enabled ? 'display.on' : 'display.off');
     for (const [input, output, value, suffix] of [
       [this._cyberSonarRings, this._cyberSonarRingsValue, settings.rings, ''],
       [this._cyberSonarRange, this._cyberSonarRangeValue, settings.range, '%'],
@@ -1653,16 +1654,16 @@ export class VisualSettings {
     );
     btn.classList.remove('active', 'god', 'panoptic');
     if (modeLabel === 'SPARSE') {
-      btn.querySelector('.pp-label').textContent = 'SPARSE';
+      btn.querySelector('.pp-label').textContent = t('display.detect.SPARSE');
       btn.classList.add('active');
     } else if (modeLabel === 'BALANCED') {
-      btn.querySelector('.pp-label').textContent = 'BALANCED';
+      btn.querySelector('.pp-label').textContent = t('display.detect.BALANCED');
       btn.classList.add('active');
     } else if (modeLabel === 'DENSE') {
-      btn.querySelector('.pp-label').textContent = 'DENSE';
+      btn.querySelector('.pp-label').textContent = t('display.detect.DENSE');
       btn.classList.add('active', 'panoptic');
     } else {
-      btn.querySelector('.pp-label').textContent = 'DETECT';
+      btn.querySelector('.pp-label').textContent = t('display.detect.DETECT');
     }
 
     if (this._detectionSliderRow) {

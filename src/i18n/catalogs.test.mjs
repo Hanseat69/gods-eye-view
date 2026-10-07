@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
-import { CATALOGS, LOCALE_NAMES } from './catalogs.js';
+import { CATALOGS, LOCALE_NAMES, OWNED_PREFIXES } from './catalogs.js';
 import { KEY_SETUP_KEYS } from '../keySetupCore.mjs';
 import {
   ENVIRONMENTAL_LABEL_CHOICE,
@@ -26,7 +26,15 @@ test('every locale has a name and only keys the English catalog defines', () => 
   for (const [locale, catalog] of Object.entries(CATALOGS)) {
     assert.ok(LOCALE_NAMES[locale], `${locale} needs a picker name`);
     for (const [key, value] of Object.entries(catalog)) {
-      assert.ok(Object.hasOwn(EN, key), `${locale} adds unknown key ${key}`);
+      const owned = OWNED_PREFIXES.some((prefix) => key.startsWith(prefix));
+      assert.ok(
+        Object.hasOwn(EN, key) || owned,
+        `${locale} adds unknown key ${key}`,
+      );
+      if (owned) {
+        assert.ok(!Object.hasOwn(EN, key), `${key}: owned text is not copied`);
+        continue;
+      }
       assert.equal(typeof value, 'string', `${locale}:${key}`);
       assert.ok(value.trim(), `${locale}:${key} is empty`);
       assert.deepEqual(
@@ -96,12 +104,24 @@ test('text owned by modules matches its English catalog entry', () => {
 });
 
 test('every literal key the adopting modules ask for exists', () => {
-  for (const file of ['../keySetup.js', '../firstRunExperience.js']) {
+  for (const file of [
+    '../keySetup.js',
+    '../firstRunExperience.js',
+    '../ui/panelChrome.js',
+    '../ui/visualSettings.js',
+    '../ui/layerPanel.js',
+    '../voice/control.js',
+    '../voice/realtimeController.js',
+  ]) {
     const source = readFileSync(new URL(file, import.meta.url), 'utf8');
     for (const [, key] of source.matchAll(/\bt\(\s*'([^']+)'/g))
-      assert.ok(Object.hasOwn(EN, key), `${file} asks for unknown key ${key}`);
+      assert.ok(
+        Object.hasOwn(EN, key) ||
+          OWNED_PREFIXES.some((prefix) => key.startsWith(prefix)),
+        `${file} asks for unknown key ${key}`,
+      );
     for (const [, key] of source.matchAll(
-      /'((?:keySetup|firstRun)\.[\w.-]+)'/g,
+      /'((?:keySetup|firstRun|panel|display|voice)\.[\w.-]+)'/g,
     ))
       assert.ok(Object.hasOwn(EN, key), `${file} names unknown key ${key}`);
   }

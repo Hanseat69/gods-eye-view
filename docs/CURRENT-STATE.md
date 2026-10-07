@@ -39,10 +39,19 @@ text from the markup read it translated. Modules ask for dynamic text with
 identical to the marked template text, the provider registry's descriptions
 and the first-run mission text.
 
+Text another module owns (layer names, layer state words and group names in
+`src/ui/layerPanel.js`) is translated by key with its English passed as
+`params.default`; those keys live under `OWNED_PREFIXES` (`layers.`) and exist
+only in the other locales, so the English stays in one place.
+
 Translated so far: the first-run launcher, Provider Settings (rows, status
-and confirmations; server error messages stay English) and the Data Layers,
-Scenes and Display panel titles. Everything else, including voice, remains
-English.
+and confirmations; server error messages stay English), panel titles and the
+expand/collapse labels built from them, the Data Layers rows (names, groups,
+ON/OFF and feed states, last-update times), the Display panel controls, the
+command dock (Location, Visual Presets, styles and their descriptions, map
+source), the globe action buttons, and the voice control's labels, help and
+error tray. The HUD, Context, CCTV, Radio, Weather and Scenes panel bodies,
+voice responses and server messages remain English.
 
 ## God's Eye View in conversations — October 2, 2026
 

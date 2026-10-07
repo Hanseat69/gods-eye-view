@@ -413,7 +413,9 @@
       "src/keySetupCore.mjs",
       "src/localRequestGate.mjs",
       "src/data/feedState.js",
-      "src/data/layerSnapshot.js"
+      "src/data/layerSnapshot.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": []
   },
@@ -638,7 +640,9 @@
       "src/ui/localSdrControls.js",
       "src/layers/localAdsb/feedNames.js",
       "src/ui/localSdrPresentation.js",
-      "src/data/cameraArrival.js"
+      "src/data/cameraArrival.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": ["cesium"]
   },
@@ -1305,7 +1309,9 @@
       "src/voice/realtimeFacade.js",
       "src/voice/realtimeRadio.js",
       "src/voice/realtimeTurns.js",
-      "src/voice/realtimeConnection.js"
+      "src/voice/realtimeConnection.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": []
   },
@@ -2672,7 +2678,9 @@
       "src/ui/visualEffects.js",
       "src/ui/visualInput.js",
       "src/ui/visualPresets.js",
-      "src/ui/visualSettings.js"
+      "src/ui/visualSettings.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": ["cesium"]
   },
@@ -2691,7 +2699,9 @@
       "src/ui/panelRailGeometry.js",
       "src/ui/panelRails.js",
       "src/ui/rightPanelRail.js",
-      "src/ui/uiLifetime.js"
+      "src/ui/uiLifetime.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": []
   },
@@ -2784,7 +2794,9 @@
     "modules": [
       "src/voice/sessionCommands.js",
       "src/voice/session.js",
-      "src/voice/control.js"
+      "src/voice/control.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": []
   },

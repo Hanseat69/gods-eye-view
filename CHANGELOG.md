@@ -21,8 +21,9 @@
   reloads in that language, keeping the shared view in its address. `?lang=de`
   shows one load in German without changing the stored choice. English stays
   the default and the source text. This first pass translates the first-run
-  launcher, Provider Settings and the Data Layers, Scenes and Display panel
-  titles; untranslated text stays English.
+  launcher, Provider Settings, the Data Layers rows, the Display panel
+  controls, the command dock, the globe action buttons and the voice
+  control's labels; untranslated text stays English.
 
 ## [0.2.1] — 2026-10-02 — God's Eye View through Your Agent (with security fixes and other features)
 

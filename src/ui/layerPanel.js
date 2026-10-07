@@ -1,3 +1,4 @@
+import { t } from '../i18n/index.js';
 import { syncChipGroup } from './chipGroup.js';
 import { syncRowList } from './rowList.js';
 import { layerFeedState } from '../data/feedState.js';
@@ -79,7 +80,14 @@ const PANEL_LABELS = {
 };
 
 function panelLabel(layer) {
-  return PANEL_LABELS[layer.id] || layer.name;
+  return t(`layers.name.${layer.id}`, {
+    default: PANEL_LABELS[layer.id] || layer.name,
+  });
+}
+
+/** A state word in the page language; the English stays in this module. */
+function stateText(state, english) {
+  return t(`layers.state.${state}`, { default: english });
 }
 
 /**
@@ -207,7 +215,9 @@ export class LayerPanel {
       if (group && group !== previousGroup) {
         const heading = document.createElement('h3');
         heading.className = 'data-layer-group-heading';
-        heading.textContent = group;
+        heading.textContent = t(`layers.group.${group.toLowerCase()}`, {
+          default: group,
+        });
         this._toggleContainer.appendChild(heading);
       }
       previousGroup = group;
@@ -520,15 +530,15 @@ export class LayerPanel {
   _buildMetaText(layer) {
     const stats = layer.stats || {};
     const feedState = layerFeedState(stats);
-    const stateLabel = FEED_STATE_LABELS[feedState];
+    const stateLabel = stateText(feedState, FEED_STATE_LABELS[feedState]);
     const source = stats.source || layer.source;
     const lifecycleState =
       layer.lifecycleState || (layer.enabled ? 'enabled' : 'disabled');
     if (lifecycleState === 'enabling' || lifecycleState === 'disabling') {
-      return `${lifecycleState.toUpperCase()} · ${source}`;
+      return `${stateText(lifecycleState, lifecycleState.toUpperCase())} · ${source}`;
     }
     if (layer.lifecycleUncertain) {
-      return `UNCERTAIN · ${source} · lifecycle state requires reconciliation`;
+      return `${stateText('uncertain', 'UNCERTAIN')} · ${source} · lifecycle state requires reconciliation`;
     }
     const presentedError =
       stats.error || stats.lastError || stats.managerRefreshError;
@@ -547,12 +557,14 @@ export class LayerPanel {
     ) {
       return `${source} · ${stats.statusMessage.trim()}`;
     }
-    const ago = stats.lastUpdate ? this._timeAgo(stats.lastUpdate) : 'never';
+    const ago = stats.lastUpdate
+      ? this._timeAgo(stats.lastUpdate)
+      : t('layers.time.never', { default: 'never' });
     if (stats.loading) {
       const loadingLabel =
         typeof stats.loadingLabel === 'string' && stats.loadingLabel.trim()
           ? stats.loadingLabel.trim()
-          : 'loading...';
+          : t('layers.loading', { default: 'loading...' });
       return `${source} · ${loadingLabel}`;
     }
     if (feedState === 'fallback') {
@@ -614,13 +626,14 @@ export class LayerPanel {
     button.disabled = false;
     button.setAttribute('aria-disabled', String(transitioning));
     button.setAttribute('aria-busy', String(transitioning));
-    button.textContent = transitioning
-      ? layer.lifecycleState.toUpperCase()
+    const label = transitioning
+      ? stateText(layer.lifecycleState, layer.lifecycleState.toUpperCase())
       : uncertain
-        ? 'UNCERTAIN'
+        ? stateText('uncertain', 'UNCERTAIN')
         : layer.enabled
-          ? FEED_STATE_LABELS[feedState]
-          : 'OFF';
+          ? stateText(feedState, FEED_STATE_LABELS[feedState])
+          : stateText('off', 'OFF');
+    button.textContent = label;
     const keyGuidance = layerKeyRequirementTooltip(layer);
     // Name the missing key on the control itself: a row reading KEY REQUIRED
     // without saying WHICH key leaves a dead control and no next step. Empty
@@ -641,9 +654,13 @@ export class LayerPanel {
 
   _timeAgo(timestamp) {
     const diff = Math.floor((Date.now() - timestamp) / 1000);
-    if (diff < 5) return 'just now';
-    if (diff < 60) return `${diff}s ago`;
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    return `${Math.floor(diff / 3600)}h ago`;
+    const ago = (unit, count, english) =>
+      t(`layers.time.${unit}`, { count, default: english });
+    if (diff < 5) return t('layers.time.now', { default: 'just now' });
+    if (diff < 60) return ago('seconds', diff, `${diff}s ago`);
+    const minutes = Math.floor(diff / 60);
+    if (diff < 3600) return ago('minutes', minutes, `${minutes}m ago`);
+    const hours = Math.floor(diff / 3600);
+    return ago('hours', hours, `${hours}h ago`);
   }
 }
