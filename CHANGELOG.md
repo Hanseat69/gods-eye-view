@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+- Show a contact details card for the selected aircraft or vessel: a
+  Planespotters.net photo with its photographer credit for aircraft, the
+  identifiers the app already has, and links to Flightradar24, ADS-B
+  Exchange and Planespotters, or to MarineTraffic, VesselFinder and
+  MyShipTracking. The app only links to those sites and reads no data from
+  them; photos load from Planespotters through a cached local proxy.
+
 - Read the interface more easily. Display > Readable enlarges small panel,
   dock and HUD text by 30%, raises secondary text contrast, makes panel
   backgrounds denser and outlines text drawn over the globe. The choice is

@@ -1,5 +1,26 @@
 # God's Eye View Current State
 
+## Contact details card — October 7, 2026
+
+Selecting a flight or military aircraft, or an AIS vessel, opens a small card
+below the globe actions (`src/ui/contactDetails.js`, started from
+`src/main.js`). It listens to the selection events the layers already publish
+(`gev:awareness-subject-selected` / `-cleared` for aircraft,
+`gev:entity-selected` / `gev:entity-selection-cleared` for vessels) and reads
+their shared context record, so no layer depends on it; it refreshes every
+4 s while open so late adsbdb enrichment appears. The × closes the card
+without deselecting.
+
+Aircraft show type, registration, callsign, operator, route and ICAO hex, a
+Planespotters.net photo through `/api/aircraft-photo/<hex>`
+(`server/providers/aircraft/photos.js`) with its photographer credit and photo
+page link, and links to Flightradar24 (callsign, else registration), ADS-B
+Exchange and Planespotters. Vessels show type, MMSI, IMO and destination and
+link to MarineTraffic, VesselFinder (by IMO, now part of the vessel context)
+and MyShipTracking; there is no openly licensed vessel photo source.
+`src/data/contactLinks.js` validates every identifier before building a URL.
+Owner data is never requested or shown.
+
 ## Readable mode — October 7, 2026
 
 Display > Readable (`#readable-toggle`, `src/ui/readableMode.js`) sets

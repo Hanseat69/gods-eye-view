@@ -137,6 +137,7 @@ test('every literal key the adopting modules ask for exists', () => {
     '../hud.js',
     '../hudLocality.js',
     '../scenes/director.js',
+    '../ui/contactDetails.js',
   ]) {
     const source = readFileSync(new URL(file, import.meta.url), 'utf8');
     for (const [, key] of source.matchAll(/\bt\(\s*'([^']+)'/g))
@@ -146,7 +147,7 @@ test('every literal key the adopting modules ask for exists', () => {
         `${file} asks for unknown key ${key}`,
       );
     for (const [, key] of source.matchAll(
-      /'((?:keySetup|firstRun|panel|display|voice|radio|sdr|cctv|scenes|weather|context|hud|director)\.[\w.-]+)'/g,
+      /'((?:keySetup|firstRun|panel|display|voice|radio|sdr|cctv|scenes|weather|context|hud|director|contact)\.[\w.-]+)'/g,
     ))
       assert.ok(Object.hasOwn(EN, key), `${file} names unknown key ${key}`);
   }

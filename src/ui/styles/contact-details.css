@@ -1,0 +1,97 @@
+/* Contact details card (src/ui/contactDetails.js): photo and outbound links
+   for the selected aircraft or vessel, below the globe actions. */
+.contact-details {
+  position: fixed;
+  top: 96px;
+  left: 50%;
+  z-index: 40;
+  width: min(300px, calc(100vw - 32px));
+  transform: translateX(-50%);
+  padding: 10px 12px 12px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--btn-radius);
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.contact-details[hidden] {
+  display: none;
+}
+
+.contact-details-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.contact-details-title {
+  overflow: hidden;
+  color: var(--accent);
+  font-size: calc(12px * var(--ui-small-text-scale, 1));
+  letter-spacing: 0.08em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-details-close {
+  border: 0;
+  background: none;
+  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.contact-details-close:hover,
+.contact-details-close:focus-visible {
+  color: var(--text-primary);
+}
+
+.contact-details-photo {
+  margin: 8px 0 6px;
+}
+
+.contact-details-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: calc(var(--btn-radius) / 2);
+}
+
+.contact-details-credit,
+.contact-details-note {
+  margin-top: 4px;
+  color: var(--text-secondary);
+  font-size: calc(9px * var(--ui-small-text-scale, 1));
+}
+
+.contact-details-line {
+  color: var(--text-secondary);
+  font-size: calc(10px * var(--ui-small-text-scale, 1));
+  line-height: 1.5;
+}
+
+.contact-details-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.contact-details-link {
+  padding: 3px 7px;
+  border: 1px solid var(--glass-border);
+  border-radius: calc(var(--btn-radius) / 2);
+  color: var(--accent);
+  font-size: calc(9px * var(--ui-small-text-scale, 1));
+  letter-spacing: 0.06em;
+  text-decoration: none;
+}
+
+.contact-details-link:hover,
+.contact-details-link:focus-visible {
+  border-color: var(--accent);
+}

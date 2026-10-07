@@ -901,5 +901,8 @@
   "src/ui/languagePicker.test.mjs",
   "scripts/launch.mjs",
   "src/tooling/launch.test.mjs",
-  "src/ui/readableMode.test.mjs"
+  "src/ui/readableMode.test.mjs",
+  "src/data/contactLinks.test.mjs",
+  "src/tooling/aircraftPhotoProvider.test.mjs",
+  "src/ui/contactDetails.test.mjs"
 ]

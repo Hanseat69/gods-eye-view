@@ -211,6 +211,7 @@ export function createSelection({
         longitude: record.lon,
         properties: {
           mmsi: record.mmsi,
+          imo: record.imo,
           type: record.type,
           speedKt: record.speed,
           course: record.course,

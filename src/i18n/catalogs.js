@@ -379,6 +379,26 @@ const EN = Object.freeze({
   'director.cameraInterrupted': 'Camera move interrupted',
   'director.mediaTimeout': 'Scene media timed out',
 
+  // Contact details card (src/ui/contactDetails.js).
+  'contact.label': 'Contact details',
+  'contact.close': 'Close contact details',
+  'contact.links': 'More about this contact',
+  'contact.registration': 'Reg. {value}',
+  'contact.callsign': 'Callsign {value}',
+  'contact.route': 'Route {value}',
+  'contact.hex': 'ICAO {value}',
+  'contact.mmsi': 'MMSI {value}',
+  'contact.imo': 'IMO {value}',
+  'contact.destination': 'Destination {value}',
+  'contact.photoLoading': 'Looking for a photo…',
+  'contact.noPhoto': 'No photo on Planespotters',
+  'contact.photoAlt': 'Photo of {title}',
+  'contact.photoCredit': 'Photo: {name} · Planespotters.net',
+  'contact.photoSource': 'Photo: Planespotters.net',
+  'contact.vesselPhoto':
+    'No openly licensed vessel photos; the linked sites show photos.',
+  'contact.openIn': 'Open on {site}',
+
   // First-run launcher (src/ui/templates/welcome.html, src/firstRunExperience.js).
   'firstRun.kicker': 'MISSION CONTROL · FIRST LAUNCH',
   'firstRun.title': 'Choose your first view',
@@ -976,6 +996,25 @@ const DE = Object.freeze({
     '{mode} konnte nicht verlassen werden – Szenen-Ebenen werden evtl. abgelehnt',
   'director.cameraInterrupted': 'Kamerafahrt unterbrochen',
   'director.mediaTimeout': 'Szenen-Medien haben das Zeitlimit überschritten',
+
+  'contact.label': 'Kontaktdetails',
+  'contact.close': 'Kontaktdetails schließen',
+  'contact.links': 'Mehr zu diesem Kontakt',
+  'contact.registration': 'Kennz. {value}',
+  'contact.callsign': 'Rufzeichen {value}',
+  'contact.route': 'Route {value}',
+  'contact.hex': 'ICAO {value}',
+  'contact.mmsi': 'MMSI {value}',
+  'contact.imo': 'IMO {value}',
+  'contact.destination': 'Ziel {value}',
+  'contact.photoLoading': 'Foto wird gesucht …',
+  'contact.noPhoto': 'Kein Foto bei Planespotters',
+  'contact.photoAlt': 'Foto von {title}',
+  'contact.photoCredit': 'Foto: {name} · Planespotters.net',
+  'contact.photoSource': 'Foto: Planespotters.net',
+  'contact.vesselPhoto':
+    'Keine frei lizenzierten Schiffsfotos – die verlinkten Seiten zeigen Fotos.',
+  'contact.openIn': 'Auf {site} öffnen',
 
   'firstRun.kicker': 'MISSIONSKONTROLLE · ERSTER START',
   'firstRun.title': 'Wähle deine erste Ansicht',
