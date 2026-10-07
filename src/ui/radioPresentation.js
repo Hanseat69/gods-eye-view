@@ -1,7 +1,8 @@
 import { t } from '../i18n/index.js';
 
 /** A playback verb (Play, Pause, Resume) in the page language. */
-const actionText = (action) => t(`radio.action.${action.toLowerCase()}`);
+const actionText = (action) =>
+  t(`radio.action.${action.toLowerCase()}`, { default: action });
 
 /** Render Radio state without making playback or Context decisions. */
 export function renderRadioState(state) {

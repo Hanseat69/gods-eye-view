@@ -1,4 +1,8 @@
-import { t } from '../i18n/index.js';
+import { t as translate } from '../i18n/index.js';
+
+const ENTITIES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
+/** Translated text for the markup below, escaped so no locale can break it. */
+const t = (key) => translate(key).replace(/[&<>"]/g, (char) => ENTITIES[char]);
 
 /** Build the voice control independently of its connection backend. */
 export function createVoiceControl({ reset = false } = {}) {
