@@ -1,3 +1,5 @@
+import { t } from '../i18n/index.js';
+
 /** Own Scene panel listeners and presentation through project reads and actions. */
 import {
   sceneElements,
@@ -57,7 +59,7 @@ export class SceneControls {
       if (!this.destroyed) elements.file.value = '';
     });
     if (!subscribe) {
-      this.updateStatus('Ready');
+      this.updateStatus(t('scenes.ready'));
       this.setProgress(0);
       this.setButtons(false);
     }
@@ -123,7 +125,7 @@ export class SceneControls {
     const generation = ++this.actionGeneration;
     const failed = () => {
       if (!this.destroyed && generation === this.actionGeneration)
-        this.updateStatus('Scene action failed');
+        this.updateStatus(t('scenes.failed'));
     };
     try {
       const result = this.actions[action](...args);
@@ -140,8 +142,8 @@ export class SceneControls {
   createScene() {
     if (this.destroyed) return;
     const name = window.prompt(
-      'New scene name',
-      `Scene ${this.read().scenes.length + 1}`,
+      t('scenes.newName'),
+      t('scenes.defaultName', { number: this.read().scenes.length + 1 }),
     );
     if (name) this.run('create', name);
   }
@@ -152,7 +154,10 @@ export class SceneControls {
     const scene = state.scenes.find(
       (item) => item.id === state.selectedSceneId,
     );
-    if (scene && window.confirm(`Delete scene "${scene.title}" and all shots?`))
+    if (
+      scene &&
+      window.confirm(t('scenes.confirmDelete', { title: scene.title }))
+    )
       this.run('deleteScene');
   }
 
@@ -160,7 +165,10 @@ export class SceneControls {
     if (this.destroyed) return;
     const scene = this.read().scenes.find((item) => item.id === sceneId);
     const shot = scene?.shots.find((item) => item.id === shotId);
-    if (shot && window.confirm(`Delete shot "${shot.title}"?`))
+    if (
+      shot &&
+      window.confirm(t('scenes.confirmDeleteShot', { title: shot.title }))
+    )
       this.run('deleteShot', sceneId, shotId);
   }
 
@@ -215,7 +223,7 @@ export class SceneControls {
     } else if (!this.destroyed && !this.playbackKeyRemover) {
       const onKeyDown = (event) => {
         if (!this.destroyed && event.key === 'Escape' && this.read().running)
-          this.run('stop', 'Stopped (Esc)');
+          this.run('stop', t('scenes.stoppedEsc'));
       };
       document.addEventListener('keydown', onKeyDown);
       this.playbackKeyRemover = () =>

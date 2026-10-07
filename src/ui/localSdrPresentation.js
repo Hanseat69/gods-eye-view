@@ -1,3 +1,4 @@
+import { t } from '../i18n/index.js';
 import { localReceiverFeedName } from '../layers/localAdsb/feedNames.js';
 
 /**
@@ -57,15 +58,15 @@ export function localSdrCardView(state) {
   return {
     connectionLabel: state.connected
       ? adsbActive
-        ? `${state.aircraftHeard || 0} HEARD`
-        : 'STREAMING'
+        ? t('sdr.heard', { count: state.aircraftHeard || 0 })
+        : t('sdr.streaming')
       : String(state.status || 'idle').toUpperCase(),
     connectionActive: Boolean(state.connected),
     connectLabel: transitional
       ? String(state.status).toUpperCase()
       : state.connected
-        ? 'DISCONNECT'
-        : 'CONNECT',
+        ? t('sdr.disconnect')
+        : t('sdr.connect'),
     connectDisabled: transitional || !state.webUsbSupported,
     connectPressed: Boolean(state.connected),
     fmActive,
@@ -73,10 +74,10 @@ export function localSdrCardView(state) {
     modeDisabled: transitional,
     locateLabel:
       state.locationStatus === 'requesting'
-        ? 'LOCATING…'
+        ? t('sdr.locating')
         : state.locationStatus === 'ready'
-          ? 'LOCATED'
-          : 'LOCATE',
+          ? t('sdr.located')
+          : t('sdr.locate'),
     locateDisabled: state.locationStatus === 'requesting',
     locateActive: state.locationStatus === 'ready',
     changeDeviceDisabled: transitional || !state.webUsbSupported,

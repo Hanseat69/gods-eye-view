@@ -1,3 +1,9 @@
+import { t } from '../i18n/index.js';
+
+/** A calibration field's short label in the page language. */
+const fieldLabel = (field) =>
+  t(`cctv.field.${field.label}`, { default: field.label });
+
 /** Shortest-wrap signed degrees, for heading offsets typed as absolute values. */
 const signedNormalizeDeg = (deg) => ((((deg + 180) % 360) + 360) % 360) - 180;
 
@@ -99,7 +105,7 @@ export function _beginCctvCalValueEdit(chip) {
   input.step = field.decimals > 0 ? '0.1' : '1';
   input.value = Number(startValue).toFixed(field.decimals);
   input.className = 'cctv-cal-input';
-  chip.textContent = `${field.label} `;
+  chip.textContent = `${fieldLabel(field)} `;
   chip.appendChild(input);
   input.focus();
   input.select();
@@ -162,7 +168,9 @@ export function _syncCctvCalReadout(enabled, activeCamera) {
   if (this._cctvAdjustBtn) {
     const adjustOn = !!this._cctvState?.calibrationMode;
     this._cctvAdjustBtn.classList.toggle('active', adjustOn && canCalibrate);
-    this._cctvAdjustBtn.textContent = adjustOn ? 'ADJUST ON' : 'ADJUST';
+    this._cctvAdjustBtn.textContent = t(
+      adjustOn ? 'cctv.adjust.on' : 'cctv.adjust.off',
+    );
     this._cctvAdjustBtn.disabled = !canCalibrate;
   }
   if (this._cctvCalReadout) {
@@ -174,8 +182,8 @@ export function _syncCctvCalReadout(enabled, activeCamera) {
       if (!field) continue;
       const value = canCalibrate ? field.get(activeCamera) : null;
       chip.textContent = Number.isFinite(value)
-        ? `${field.label} ${Number(value).toFixed(field.decimals)}${field.unit}`
-        : `${field.label} --`;
+        ? `${fieldLabel(field)} ${Number(value).toFixed(field.decimals)}${field.unit}`
+        : `${fieldLabel(field)} --`;
       chip.disabled = !canCalibrate;
     }
   }

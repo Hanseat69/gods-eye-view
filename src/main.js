@@ -1,5 +1,12 @@
 import { createStandaloneApplication } from './standalone/application.js';
 import { describeError } from './standalone/errors.js';
+import { applyPageLocale } from './standalone/locale.js';
+import { applyPageReadability } from './standalone/readability.js';
+import { startContactDetails } from './ui/contactDetails.js';
+
+applyPageLocale();
+applyPageReadability();
+startContactDetails();
 
 const application = createStandaloneApplication({
   googleApiKey: import.meta.env.GOOGLE_MAPS_API_KEY,

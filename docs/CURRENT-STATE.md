@@ -1,5 +1,90 @@
 # God's Eye View Current State
 
+## Contact details card — October 7, 2026
+
+Selecting a flight or military aircraft, or an AIS vessel, opens a small card
+below the globe actions (`src/ui/contactDetails.js`, started from
+`src/main.js`). It listens to the selection events the layers already publish
+(`gev:awareness-subject-selected` / `-cleared` for aircraft,
+`gev:entity-selected` / `gev:entity-selection-cleared` for vessels) and reads
+their shared context record, so no layer depends on it; it refreshes every
+4 s while open so late adsbdb enrichment appears. The × closes the card
+without deselecting.
+
+Aircraft show type, registration, callsign, operator, route and ICAO hex, a
+Planespotters.net photo through `/api/aircraft-photo/<hex>`
+(`server/providers/aircraft/photos.js`) with its photographer credit and photo
+page link (answers cached 24 hours; the browser loads the image from
+Planespotters itself, and an image it cannot load becomes a link to the photo
+page), and links to Flightradar24 (callsign, else registration), ADS-B
+Exchange and Planespotters. Vessels show type, MMSI, IMO and destination and
+link to MarineTraffic, VesselFinder (by IMO, now part of the vessel context)
+and MyShipTracking; there is no openly licensed vessel photo source.
+`src/data/contactLinks.js` validates every identifier before building a URL.
+Owner data is never requested or shown.
+
+## Readable mode — October 7, 2026
+
+Display > Readable (`#readable-toggle`, `src/ui/readableMode.js`) sets
+`data-readable` on the root element. `src/ui/styles/readable.css`, imported
+after `cyber.css` so it wins over every layout, then raises
+`--ui-small-text-scale` to 1.3, lifts `--text-secondary` and `--text-dim`,
+makes `--glass-bg` denser, outlines text with a dark shadow and removes the
+HUD's opacity fades. Cyber keeps its own tint at the higher contrast.
+
+Every `font-size` of 12px or 0.75rem and below in the panel stylesheets is
+written `calc(N * var(--ui-small-text-scale, 1))`, so the default rendering is
+unchanged. Three places keep fixed sizes: `cockpit.css` (instrument plates),
+`voice-cost.css` (its readout must fit the voice button) and the
+`#cesium-credits` rule, whose 10px drives the measured attribution height.
+`src/ui/readableMode.test.mjs` fails when new small text skips the token.
+
+The choice is stored in `localStorage['gev:readable-ui:v1']` (off removes it);
+`?readable=1` and `?readable=0` apply to one load. Switching applies at once
+and dispatches a window resize so rails re-measure.
+
+## Interface language — October 3, 2026
+
+Display > Language switches the interface between English and Deutsch. The
+choice is stored in `localStorage['gev:ui-locale:v1']` (English removes it),
+and the page reloads so every surface starts in one language; the address,
+including the shared view in its hash, is kept. A `?lang=` query outranks the
+stored choice for that load and is dropped when the picker is used. The
+browser's own language is not consulted while coverage is partial.
+
+`src/i18n/` owns the catalogs and the translator. English is the source
+catalog: other locales fall back to it key by key and may not add keys.
+Static markup marks translatable text with `data-i18n="key"` and attributes
+with `data-i18n-attr="attribute:key"`; `src/standalone/locale.js` applies the
+locale before the application starts, so controllers that read their initial
+text from the markup read it translated. Modules ask for dynamic text with
+`t(key, params)`. `src/i18n/catalogs.test.mjs` keeps the English catalog
+identical to the marked template text, the provider registry's descriptions
+and the first-run mission text.
+
+Text another module owns (layer names, layer state words and group names in
+`src/ui/layerPanel.js`, and the Recent Imagery readout in
+`src/ui/recentImagery.js`, and Radio Browser category names) is translated by key with its English passed as
+`params.default`; those keys live under `OWNED_PREFIXES` (`layers.`,
+`imagery.`, `radiocat.`) and exist only in the other locales, so the English stays in one
+place. Module-level constants stay English and are translated where they are
+shown, because modules load before the page locale is set.
+
+Translated so far: the first-run launcher, Provider Settings (rows, status
+and confirmations; server error messages stay English), panel titles and the
+expand/collapse labels built from them, the Data Layers rows (names, groups,
+ON/OFF and feed states, last-update times), the Display panel controls, the
+command dock (Location, Visual Presets, styles and their descriptions, map
+source), the globe action buttons, and the voice control's labels, help and
+error tray, and the Context, CCTV, Scenes, Radio, local RTL-SDR, Weather and
+Recent Imagery panels (controls, states, hints, status and detail lines),
+the HUD (classification, readouts and the composed summary line; GSD, NIIRS,
+ONA, MGRS, PAN and AIS stay as the international abbreviations), the scene
+director's status and run messages, and the Radio Browser topic categories
+(`radiocat.`, owned by `src/layers/radio`; most music genres keep their
+names). The AI HUD summary, voice responses and server messages remain
+English: the summary's feed-state tokens are checked in English.
+
 ## God's Eye View in conversations — October 2, 2026
 
 Tool answers that can be shown in God's Eye View include a view: camera, layers,

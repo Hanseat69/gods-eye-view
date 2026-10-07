@@ -2,6 +2,38 @@
 
 ## [Unreleased]
 
+- Show a contact details card for the selected aircraft or vessel: a
+  Planespotters.net photo with its photographer credit for aircraft, the
+  identifiers the app already has, and links to Flightradar24, ADS-B
+  Exchange and Planespotters, or to MarineTraffic, VesselFinder and
+  MyShipTracking. The app only links to those sites and reads no data from
+  them; photos load from Planespotters through a cached local proxy.
+
+- Read the interface more easily. Display > Readable enlarges small panel,
+  dock and HUD text by 30%, raises secondary text contrast, makes panel
+  backgrounds denser and outlines text drawn over the globe. The choice is
+  stored per browser (`gev:readable-ui:v1`); `?readable=1` or `?readable=0`
+  sets it for one load. Off by default, so the standard look is unchanged:
+  small font sizes are now written against one `--ui-small-text-scale` token
+  that is 1 unless readable mode is on.
+
+- Start with one step: `npm start`, or a double click on `Start-Windows.bat`,
+  `Start-Mac.command` or `start.sh`, checks Node, installs dependencies when
+  they are missing or older than the lockfile, picks a free local port, starts
+  the dev server on 127.0.0.1 and opens the browser. The double-click
+  launchers open the German interface.
+
+- Choose the interface language. Display > Language lists English and
+  Deutsch; the choice is stored per browser (`gev:ui-locale:v1`) and the page
+  reloads in that language, keeping the shared view in its address. `?lang=de`
+  shows one load in German without changing the stored choice. English stays
+  the default and the source text. This first pass translates the first-run
+  launcher, Provider Settings, the Data Layers rows, the Display panel
+  controls, the command dock, the globe action buttons and the voice
+  control's labels, and the Context, CCTV, Scenes, Radio, RTL-SDR, Weather
+  and Recent Imagery panels, the HUD, scene-director messages and Radio
+  Browser categories; untranslated text stays English.
+
 ## [0.2.1] — 2026-10-02 — God's Eye View through Your Agent (with security fixes and other features)
 
 - Ship each bundled data pack once. The region, marine, admin-boundary,

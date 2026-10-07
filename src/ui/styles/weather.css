@@ -51,7 +51,7 @@
   display: none !important;
 }
 #weather-panel.collapsed .panel-title {
-  font-size: 8px;
+  font-size: calc(8px * var(--ui-small-text-scale, 1));
   letter-spacing: 1.8px;
 }
 #weather-panel.collapsed .panel-header {
@@ -137,7 +137,7 @@
 .rail-card-line,
 .rail-timeline-readout {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: calc(9px * var(--ui-small-text-scale, 1));
   letter-spacing: 0.5px;
   color: var(--text-dim);
 }
@@ -184,7 +184,7 @@
 .rail-card .data-row-list-item {
   min-width: 0;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: calc(9px * var(--ui-small-text-scale, 1));
   letter-spacing: 0.5px;
 }
 .rail-card [hidden],

@@ -18,3 +18,6 @@
 *.glb binary
 *.wav binary
 *.pbf binary
+
+# Windows batch launchers need CRLF.
+*.bat text eol=crlf
