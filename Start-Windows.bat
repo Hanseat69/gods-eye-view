@@ -14,5 +14,5 @@ if errorlevel 1 (
   exit /b 1
 )
 
-node scripts\launch.mjs --lang de %*
+node scripts\launch.mjs --lang de --fast %*
 if errorlevel 1 pause

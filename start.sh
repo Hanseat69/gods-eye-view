@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Startet God's Eye View auf macOS und Linux: ./start.sh
+# Einrichtungsmodus (POWER UP, Schlüssel eintragen): ./start.sh --dev
 # Details und Optionen: scripts/launch.mjs
 cd "$(dirname "$0")" || exit 1
 
@@ -20,7 +21,7 @@ if ! command -v node >/dev/null 2>&1; then
   exit 1
 fi
 
-node scripts/launch.mjs --lang de "$@"
+node scripts/launch.mjs --lang de --fast "$@"
 status=$?
 if [ "$status" -ne 0 ]; then
   read -r -p "Enter zum Schließen ..." _

@@ -1,17 +1,24 @@
 #!/usr/bin/env node
 /**
  * One-step local start: check Node, install dependencies when they are
- * missing or older than the lockfile, pick a free local port, start the dev
+ * missing or older than the lockfile, pick a free local port, start the
  * server on loopback and open the browser.
  *
- *   node scripts/launch.mjs [--lang de] [--port 4173] [--no-open]
+ *   node scripts/launch.mjs [--lang de] [--port 4173] [--no-open] [--fast]
+ *
+ * Without `--fast` the Vite dev server runs: about 760 unbundled module
+ * requests on first load, but Provider Settings (POWER UP) is available.
+ * With `--fast` the production build is served instead (about 50 requests,
+ * roughly three times faster to first paint); it is rebuilt only when the
+ * sources, the lockfile or the `.env` keys are newer than the last build.
  *
  * The double-click launchers in the repository root (Start-Windows.bat,
- * Start-Mac.command, start.sh) call this with `--lang de`. Messages are
+ * Start-Mac.command, start.sh) call this with `--lang de --fast`;
+ * Start-Windows-Einrichtung.bat starts the dev server for setup. Messages are
  * German because those launchers are written for a German-speaking user.
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { statSync } from 'node:fs';
+import { readdirSync, statSync } from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,10 +32,17 @@ const PORT_ATTEMPTS = 30;
 /**
  * Read the launcher's arguments. Unknown arguments are reported, not ignored.
  * @param {string[]} argv
- * @returns {{lang: string|null, port: number, open: boolean, unknown: string[]}}
+ * @returns {{lang: string|null, port: number, open: boolean, fast: boolean,
+ *   unknown: string[]}}
  */
 export function parseLaunchArgs(argv) {
-  const options = { lang: null, port: DEFAULT_PORT, open: true, unknown: [] };
+  const options = {
+    lang: null,
+    port: DEFAULT_PORT,
+    open: true,
+    fast: false,
+    unknown: [],
+  };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     const [name, inline] = arg.split('=', 2);
@@ -40,6 +54,8 @@ export function parseLaunchArgs(argv) {
         options.port = port;
       else options.unknown.push(arg);
     } else if (name === '--no-open') options.open = false;
+    else if (name === '--fast') options.fast = true;
+    else if (name === '--dev') options.fast = false;
     else options.unknown.push(arg);
   }
   return options;
@@ -57,13 +73,7 @@ export function parseLaunchArgs(argv) {
 export function needsInstall({
   root = ROOT,
   hasDependencies,
-  modifiedAt = (file) => {
-    try {
-      return statSync(file).mtimeMs;
-    } catch {
-      return null;
-    }
-  },
+  modifiedAt = modifiedAtOrNull,
 }) {
   if (!hasDependencies(root)) return true;
   const lock = modifiedAt(path.join(root, 'package-lock.json'));
@@ -71,6 +81,68 @@ export function needsInstall({
     path.join(root, 'node_modules', '.package-lock.json'),
   );
   return lock !== null && (installed === null || lock > installed);
+}
+
+/** Inputs of the production build, relative to the repository root. */
+export const BUILD_INPUTS = [
+  'src',
+  'public',
+  'build',
+  'server/standalone/vite.config.js',
+  'index.html',
+  'style.css',
+  'vite.config.js',
+  'package-lock.json',
+  // The browser keys from `.env` are written into the build.
+  '.env',
+  '.env.local',
+];
+
+function modifiedAtOrNull(file) {
+  try {
+    return statSync(file).mtimeMs;
+  } catch {
+    return null;
+  }
+}
+
+/** Newest modification time below a file or directory, or null. */
+function newestModification(target) {
+  let stats;
+  try {
+    stats = statSync(target);
+  } catch {
+    return null;
+  }
+  if (!stats.isDirectory()) return stats.mtimeMs;
+  let newest = stats.mtimeMs;
+  for (const entry of readdirSync(target)) {
+    const time = newestModification(path.join(target, entry));
+    if (time !== null && time > newest) newest = time;
+  }
+  return newest;
+}
+
+/**
+ * Whether the production build in `dist/` is missing or older than any of
+ * its inputs.
+ * @param {object} [options]
+ * @param {string} [options.root]
+ * @param {(file: string) => number|null} [options.builtAt] Time of the build.
+ * @param {(target: string) => number|null} [options.newestInput]
+ * @returns {boolean}
+ */
+export function needsBuild({
+  root = ROOT,
+  builtAt = modifiedAtOrNull,
+  newestInput = newestModification,
+} = {}) {
+  const built = builtAt(path.join(root, 'dist', 'index.html'));
+  if (built === null) return true;
+  return BUILD_INPUTS.some((input) => {
+    const time = newestInput(path.join(root, input));
+    return time !== null && time > built;
+  });
 }
 
 /**
@@ -185,16 +257,42 @@ async function launch() {
   if (port !== options.port)
     console.log(`ℹ Port ${options.port} ist belegt, nutze ${port}.`);
 
-  console.log('▶ God’s Eye View wird gestartet …');
   process.chdir(ROOT);
-  const { createServer } = await import('vite');
-  const server = await createServer({
-    root: ROOT,
-    server: { host: HOST, port, strictPort: true, open: false },
-  });
-  await server.listen();
+  const vite = await import('vite');
+  let server;
+  if (options.fast && needsBuild()) {
+    console.log('▶ Optimierte Fassung wird gebaut (einmalig, ca. 1 Minute) …');
+    try {
+      await vite.build({ root: ROOT, logLevel: 'warn' });
+    } catch (error) {
+      console.log(
+        `⚠ Bauen fehlgeschlagen (${error?.message || error}).\n` +
+          '  Starte stattdessen im Einrichtungsmodus.',
+      );
+      options.fast = false;
+    }
+  }
+  if (options.fast) {
+    console.log('▶ God’s Eye View wird gestartet (Schnellstart) …');
+    server = await vite.preview({
+      root: ROOT,
+      preview: { host: HOST, port, strictPort: true, open: false },
+    });
+  } else {
+    console.log('▶ God’s Eye View wird gestartet (Einrichtungsmodus) …');
+    server = await vite.createServer({
+      root: ROOT,
+      server: { host: HOST, port, strictPort: true, open: false },
+    });
+    await server.listen();
+  }
   const url = launchUrl(port, options.lang);
   console.log(`\n✔ Läuft unter ${url}`);
+  if (options.fast)
+    console.log(
+      '  Schlüssel eintragen (POWER UP) geht nur im Einrichtungsmodus:\n' +
+        '  Start-Windows-Einrichtung.bat bzw. ./start.sh --dev',
+    );
   console.log('  Zum Beenden dieses Fenster schließen oder Strg+C drücken.\n');
   if (options.open) openBrowser(url);
 

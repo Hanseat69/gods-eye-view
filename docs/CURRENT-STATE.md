@@ -1,5 +1,23 @@
 # God's Eye View Current State
 
+## Fast start and edge smoothing — October 16, 2026
+
+`scripts/launch.mjs --fast` builds once and serves `dist/` with
+`vite.preview()`; `needsBuild()` compares `dist/index.html` with the newest
+file under `BUILD_INPUTS` (sources, templates, build helpers, lockfile and
+`.env`, whose browser keys are written into the build). The double-click
+launchers use it; `Start-Windows-Einrichtung.bat` and `--dev` start the dev
+server, which alone serves Provider Settings. Measured in the cloud container
+(software GL, three cold loads each): dev server about 760 requests, 48.8 MiB,
+DOMContentLoaded about 4.1 s (18 s on the very first load while Vite
+pre-bundles); production build about 47 requests, 5.8 MiB, DOMContentLoaded
+about 1.2 s.
+
+Display > Smooth edges (`src/ui/edgeSmoothing.js`, bound from
+`src/standalone/edgeSmoothing.js`) switches `scene.msaaSamples` between 4 and
+1 at runtime and requests a frame. The viewer is still created with four
+samples; a stored off choice is applied once `application.start()` resolves.
+
 ## Contact details card — October 7, 2026
 
 Selecting a flight or military aircraft, or an AIS vessel, opens a small card

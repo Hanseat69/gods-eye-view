@@ -1,4 +1,5 @@
 import { createStandaloneApplication } from './standalone/application.js';
+import { bindPageEdgeSmoothing } from './standalone/edgeSmoothing.js';
 import { describeError } from './standalone/errors.js';
 import { applyPageLocale } from './standalone/locale.js';
 import { applyPageReadability } from './standalone/readability.js';
@@ -6,6 +7,7 @@ import { startContactDetails } from './ui/contactDetails.js';
 
 applyPageLocale();
 applyPageReadability();
+const applyEdgeSmoothing = bindPageEdgeSmoothing();
 startContactDetails();
 
 const application = createStandaloneApplication({
@@ -14,11 +16,16 @@ const application = createStandaloneApplication({
   allowQaRegistration: import.meta.env.DEV,
 });
 
-application.start().catch((error) => {
-  console.error("God's Eye View initialization failed:", error);
-  const loaderStatus = document.querySelector('#loading-screen .loader-status');
-  loaderStatus.textContent = `Error: ${describeError(error)}`;
-  loaderStatus.style.color = '#ff4444';
-});
+application
+  .start()
+  .then(applyEdgeSmoothing)
+  .catch((error) => {
+    console.error("God's Eye View initialization failed:", error);
+    const loaderStatus = document.querySelector(
+      '#loading-screen .loader-status',
+    );
+    loaderStatus.textContent = `Error: ${describeError(error)}`;
+    loaderStatus.style.color = '#ff4444';
+  });
 
 export { application };

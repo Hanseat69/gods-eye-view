@@ -904,5 +904,6 @@
   "src/ui/readableMode.test.mjs",
   "src/data/contactLinks.test.mjs",
   "src/tooling/aircraftPhotoProvider.test.mjs",
-  "src/ui/contactDetails.test.mjs"
+  "src/ui/contactDetails.test.mjs",
+  "src/ui/edgeSmoothing.test.mjs"
 ]

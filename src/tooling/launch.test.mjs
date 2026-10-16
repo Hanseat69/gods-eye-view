@@ -8,6 +8,7 @@ import {
   findFreePort,
   isPortFree,
   launchUrl,
+  needsBuild,
   needsInstall,
   parseLaunchArgs,
 } from '../../scripts/launch.mjs';
@@ -19,17 +20,20 @@ test('launcher arguments parse in both forms and report the rest', () => {
     lang: null,
     port: DEFAULT_PORT,
     open: true,
+    fast: false,
     unknown: [],
   });
   assert.deepEqual(
-    parseLaunchArgs(['--lang', 'de', '--port=4200', '--no-open']),
+    parseLaunchArgs(['--lang', 'de', '--port=4200', '--no-open', '--fast']),
     {
       lang: 'de',
       port: 4200,
       open: false,
+      fast: true,
       unknown: [],
     },
   );
+  assert.equal(parseLaunchArgs(['--fast', '--dev']).fast, false);
   assert.deepEqual(parseLaunchArgs(['--port', '0', '--verbose']).unknown, [
     '--port',
     '--verbose',
@@ -80,6 +84,37 @@ test('dependencies install when missing or older than the lockfile', () => {
   );
 });
 
+test('the production build is rebuilt only when an input is newer', () => {
+  const inputs = (times) => (target) => times[path.basename(target)] ?? null;
+  const built = (time) => () => time;
+  assert.equal(needsBuild({ root: '/r', builtAt: built(null) }), true);
+  assert.equal(
+    needsBuild({
+      root: '/r',
+      builtAt: built(10),
+      newestInput: inputs({ src: 5, '.env': 9 }),
+    }),
+    false,
+  );
+  assert.equal(
+    needsBuild({
+      root: '/r',
+      builtAt: built(10),
+      newestInput: inputs({ src: 5, '.env': 11 }),
+    }),
+    true,
+    'changed browser keys need a new build',
+  );
+  assert.equal(
+    needsBuild({
+      root: '/r',
+      builtAt: built(10),
+      newestInput: inputs({ src: 12 }),
+    }),
+    true,
+  );
+});
+
 test('the first free port is chosen and the search is bounded', async () => {
   const busy = new Set([4173, 4174]);
   assert.equal(await findFreePort(4173, async (port) => !busy.has(port)), 4175);
@@ -120,15 +155,23 @@ test('each platform opens the browser with its own command', () => {
 
 test('the double-click launchers run the launcher and are checked out correctly', () => {
   const read = (name) => readFileSync(new URL(name, root), 'utf8');
-  assert.match(read('start.sh'), /node scripts\/launch\.mjs --lang de "\$@"/);
+  assert.match(
+    read('start.sh'),
+    /node scripts\/launch\.mjs --lang de --fast "\$@"/,
+  );
   assert.match(
     read('Start-Mac.command'),
     /exec "\$\(dirname "\$0"\)\/start\.sh"/,
   );
   assert.match(
     read('Start-Windows.bat'),
-    /node scripts\\launch\.mjs --lang de %\*/,
+    /node scripts\\launch\.mjs --lang de --fast %\*/,
   );
+  assert.match(
+    read('Start-Windows-Einrichtung.bat'),
+    /node scripts\\launch\.mjs --lang de --dev %\*/,
+  );
+  assert.match(read('Start-Windows-Einrichtung.bat'), /\r\n/);
   assert.match(read('.gitattributes'), /^\*\.bat text eol=crlf$/m);
   assert.equal(
     JSON.parse(read('package.json')).scripts.start,

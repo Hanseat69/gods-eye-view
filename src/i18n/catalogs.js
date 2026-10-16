@@ -17,6 +17,8 @@ const EN = Object.freeze({
   'language.select': 'Interface language',
   'readable.label': 'Readable',
   'readable.title': 'Larger, higher-contrast text',
+  'msaa.label': 'Smooth edges',
+  'msaa.title': 'Smooth building and model edges (costs GPU time)',
 
   // Panel headers.
   'panel.dataLayers': 'DATA LAYERS',
@@ -487,6 +489,9 @@ const DE = Object.freeze({
   'language.select': 'Sprache der Oberfläche',
   'readable.label': 'Gut lesbar',
   'readable.title': 'Größere Schrift mit stärkerem Kontrast',
+  'msaa.label': 'Kantenglättung',
+  'msaa.title':
+    'Glättet Kanten von Gebäuden und Modellen (kostet Grafikleistung; aus = flüssiger auf schwachen Rechnern)',
 
   'panel.dataLayers': 'DATENEBENEN',
   'panel.scenes': 'SZENEN',

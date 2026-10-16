@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+- Start faster from the double-click launchers. `Start-Windows.bat`,
+  `Start-Mac.command` and `start.sh` now pass `--fast`: the launcher serves
+  the production build through `vite preview` (about 50 requests and 6 MiB on
+  first load instead of about 760 requests and 49 MiB from the dev server;
+  DOMContentLoaded about 1.2 s instead of 4 s) and rebuilds it only when the
+  sources, the lockfile or `.env` are newer than `dist/index.html`. A failed
+  build falls back to the dev server. Provider Settings (POWER UP) needs the
+  dev server: `Start-Windows-Einrichtung.bat` or `./start.sh --dev`.
+  `npm start` keeps starting the dev server.
+
+- Switch edge smoothing off on weak GPUs. Display > Smooth edges
+  (`#msaa-toggle`) sets Cesium's MSAA to one sample instead of four. On by
+  default; stored per browser (`gev:msaa:v1`); `?msaa=0` or `?msaa=1` sets it
+  for one load.
+
 - Show a contact details card for the selected aircraft or vessel: a
   Planespotters.net photo with its photographer credit for aircraft, the
   identifiers the app already has, and links to Flightradar24, ADS-B
