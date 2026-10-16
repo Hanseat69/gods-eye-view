@@ -1,5 +1,6 @@
 import { createVoiceControl } from './control.js';
 import { createVoiceSession } from './session.js';
+import { t } from '../i18n/index.js';
 
 /** Bind common controls to a supplied voice-session adapter. */
 export function createVoiceCommands({
@@ -44,15 +45,21 @@ export function createVoiceCommands({
   const updateStatus = session.subscribe((event) => {
     if (event.type !== 'state') return;
     ui.root.dataset.status = event.state;
-    ui.status.textContent =
-      event.state === 'idle' ? 'OFF' : event.state.toUpperCase();
+    ui.status.textContent = t(`voice.state.${event.state}`, {
+      default: event.state.toUpperCase(),
+    });
     ui.detail.textContent =
-      event.detail || (event.state === 'idle' ? 'Voice off' : 'Voice active');
+      event.detail ||
+      t(
+        event.state === 'idle'
+          ? 'voice.state.voiceOff'
+          : 'voice.state.voiceActive',
+      );
     ui.button.setAttribute('aria-pressed', String(session.isActive()));
     if (ui.errorDetail)
       ui.errorDetail.textContent =
         event.state === 'error'
-          ? event.detail || 'Voice could not be started.'
+          ? event.detail || t('voice.state.startFailed')
           : '';
     if (event.state === 'error') ui.root.classList?.remove('error-dismissed');
   });

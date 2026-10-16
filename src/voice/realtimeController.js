@@ -52,6 +52,8 @@ const STATUS = {
   executing: 'EXECUTING',
   error: 'ERROR',
 };
+// The state shown for anything STATUS does not name.
+const IDLE_STATUS = Object.keys(STATUS)[0];
 
 /** Compose voice state owners and coordinate ordered session startup/teardown. */
 export class GevRealtimeController extends RealtimeFacade {
@@ -288,7 +290,10 @@ export class GevRealtimeController extends RealtimeFacade {
     this.ui.root.dataset.status = status;
     if (status === 'error') this.ui.root.classList.remove('error-dismissed');
     this.updateVoiceButtonLabel();
-    this.ui.status.textContent = STATUS[status] || STATUS.idle;
+    const shown = Object.hasOwn(STATUS, status) ? status : IDLE_STATUS;
+    this.ui.status.textContent = t(`voice.state.${shown}`, {
+      default: STATUS[shown],
+    });
     const resolvedDetail =
       status === 'listening' && this.pushToTalkMode
         ? this.pushToTalkKeyHeld

@@ -1,5 +1,6 @@
 import { bindRadioControls } from './radioBindings.js';
 import { renderRadioState } from './radioPresentation.js';
+import { t } from '../i18n/index.js';
 
 /** Own Radio DOM, tuner interaction and subscription; receive playback and application actions. */
 export class RadioControls {
@@ -198,12 +199,13 @@ export class RadioControls {
       'aria-expanded',
       String(compactOpen),
     );
-    const action = compactOpen ? 'Close' : 'Open';
-    this._contextRadioToggleBtn.setAttribute(
-      'aria-label',
-      `${action} compact Radio controls`,
+    const label = t(
+      compactOpen
+        ? 'radio.tip.compactToggleClose'
+        : 'radio.tip.compactToggleOpen',
     );
-    this._contextRadioToggleBtn.title = `${action} compact Radio controls`;
+    this._contextRadioToggleBtn.setAttribute('aria-label', label);
+    this._contextRadioToggleBtn.title = label;
   }
 
   destroy() {

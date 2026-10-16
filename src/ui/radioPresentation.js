@@ -287,7 +287,7 @@ export function renderRadioState(state) {
         action: actionText(action),
       }),
     );
-    this._cockpitRadioPlayBtn.title = action;
+    this._cockpitRadioPlayBtn.title = actionText(action);
   }
   if (this._radioStopBtn)
     this._radioStopBtn.disabled =

@@ -243,7 +243,7 @@ export function createRecentImageryPanel({
   const modeGroup = el('div', 'ri-mode', selection);
   modeGroup.id = 'ri-mode';
   modeGroup.setAttribute('role', 'radiogroup');
-  modeGroup.setAttribute('aria-label', 'Mode');
+  modeGroup.setAttribute('aria-label', tr('mode.label', 'Mode'));
   const modeButtons = new Map(
     MODE_LABELS.map(([mode, label]) => {
       const node = el('button', 'data-toggle-chip ri-mode-btn', modeGroup);
@@ -270,7 +270,7 @@ export function createRecentImageryPanel({
   const controls = el('div', 'ri-block ri-controls', root);
   controls.id = 'ri-controls';
   const opacityLabel = el('label', 'ri-opacity-label', controls);
-  el('span', '', opacityLabel, 'OPACITY');
+  el('span', '', opacityLabel, tr('opacityShort', 'OPACITY'));
   const opacityValue = el('span', 'ri-opacity-value', opacityLabel, '100%');
   const opacity = el('input', 'ri-opacity', controls);
   opacity.id = 'ri-opacity';
@@ -504,7 +504,7 @@ export function createRecentImageryPanel({
       const chip = entry.chips[slotId];
       const live = slotId === 'a' || ab;
       const on = candidate.pinned === slotId && live;
-      const label = slotId === 'a' ? (ab ? 'A' : 'SHOW') : 'B';
+      const label = slotId === 'a' ? (ab ? 'A' : tr('show', 'SHOW')) : 'B';
       set(chip, 'textContent', label);
       set(chip, 'disabled', empty || !live);
       toggle(chip, 'active', on);
@@ -559,7 +559,7 @@ export function createRecentImageryPanel({
         : !snapshot.box
           ? tr('empty.noBox', 'No box')
           : snapshot.searching
-            ? 'Searching'
+            ? tr('empty.searching', 'Searching')
             : snapshot.hiddenCount
               ? tr('empty.allEmpty', 'Every day is empty here')
               : !snapshot.sources.hls && !snapshot.sources.viirs
@@ -714,7 +714,13 @@ export function createRecentImageryPanel({
                 slot: slotId.toUpperCase(),
               })
             : tr('export', 'EXPORT'),
-          title: `Download ${ab ? slotId.toUpperCase() : 'the image'} as a PNG`,
+          title: ab
+            ? tr(
+                'exportSlot.title',
+                `Download ${slotId.toUpperCase()} as a PNG`,
+                { slot: slotId.toUpperCase() },
+              )
+            : tr('export.title', 'Download the image as a PNG'),
           disabled: !exportTarget(slotId) || exporting.has(slotId),
           onClick: () => void exportImage(slotId),
         })),
@@ -816,7 +822,9 @@ export function createRecentImageryPanel({
         id: 'details',
         title: 'Details',
         open: detailsOpen,
-        compact: snapshot.focus ? snapshot.readout : 'Times, coverage, sources',
+        compact: snapshot.focus
+          ? snapshot.readout
+          : tr('details.compact', 'Times, coverage, sources'),
         blocks: [
           { id: 'lines', type: 'lines', lines: detailLines() },
           {
@@ -827,7 +835,9 @@ export function createRecentImageryPanel({
                 id: 'toggle-empty',
                 label: showing
                   ? tr('hideEmpty', 'HIDE EMPTY DAYS')
-                  : `SHOW EMPTY DAYS · ${hidden}`,
+                  : tr('showEmpty', `SHOW EMPTY DAYS · ${hidden}`, {
+                      count: hidden,
+                    }),
                 title: tr(
                   'emptyDays.title',
                   'Days the probe found empty in this box',

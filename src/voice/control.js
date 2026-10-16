@@ -19,7 +19,7 @@ export function createVoiceControl({ reset = false } = {}) {
     root.innerHTML = `
       <div class="gev-voice-heading">
         <div class="gev-voice-kicker">${t('voice.kicker')}</div>
-        <div id="gev-voice-status">OFF</div>
+        <div id="gev-voice-status">${t('voice.state.idle')}</div>
         <div class="gev-voice-cost">
           <button id="gev-voice-tier" class="gev-voice-tier-btn" type="button" aria-pressed="false" title="${t('voice.tier.title')}">STD</button>
           <span id="gev-voice-cost-value" class="gev-voice-cost-value" data-level="ok" title="${t('voice.cost.title')}">~$0.00</span>

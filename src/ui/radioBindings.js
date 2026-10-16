@@ -142,18 +142,25 @@ export function bindRadioControls() {
     syncTunerTape(resolvedCoordinate);
     if (this._radioTunerValue) {
       this._radioTunerValue.textContent = station
-        ? `CH ${String(slot.stationIndex + 1).padStart(2, '0')} / ${String(this._radioTunerStations.length).padStart(2, '0')}`
-        : 'NO STATIONS';
+        ? t('radio.tuner.channel', {
+            index: String(slot.stationIndex + 1).padStart(2, '0'),
+            total: String(this._radioTunerStations.length).padStart(2, '0'),
+          })
+        : t('radio.tuner.none');
     }
     if (this._radioTunerStation)
       this._radioTunerStation.textContent =
-        station?.name || 'NO STATION AVAILABLE';
+        station?.name || t('radio.tuner.noStation');
     if (this._radioTunerSlider) {
       this._radioTunerSlider.setAttribute(
         'aria-valuetext',
         station
-          ? `${station.name}, station ${slot.stationIndex + 1} of ${this._radioTunerStations.length}`
-          : 'No station available',
+          ? t('radio.tuner.valueText', {
+              name: station.name,
+              index: slot.stationIndex + 1,
+              total: this._radioTunerStations.length,
+            })
+          : t('radio.tuner.noStationText'),
       );
     }
     if (syncStatic)
@@ -304,12 +311,12 @@ export function bindRadioControls() {
       this._radioTunerBandPinnedForNavigation = false;
       if (result.reason === 'station-unavailable') {
         if (this._radioTunerValue)
-          this._radioTunerValue.textContent = 'OFF AIR';
+          this._radioTunerValue.textContent = t('radio.tuner.offAir');
         if (this._radioTunerStation)
-          this._radioTunerStation.textContent = 'STATION UNAVAILABLE';
+          this._radioTunerStation.textContent = t('radio.tuner.unavailable');
         this._radioTunerSlider?.setAttribute(
           'aria-valuetext',
-          'Station unavailable after directory refresh',
+          t('radio.tuner.unavailableText'),
         );
       }
     }

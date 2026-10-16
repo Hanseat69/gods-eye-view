@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+- Translate the remaining interface text: internet radio and tuner, the local
+  RTL-SDR card and its status messages, the compact radio controls, Context
+  mode buttons, CCTV calibration tooltips, the Recent Imagery panel, the
+  weather timeline, voice status and cost tooltips, the scene shot list and
+  panel collapse buttons. `src/sdr/controller.js` keeps English status text;
+  `src/ui/localSdrPresentation.js` translates it where it is shown.
+
 - Translate the cockpit view (HUD readouts, contact window, flight plan,
   briefing pages, local weather, signals), the live-data loading chip, the
   start-up status, map-source key hints, draw-mode guidance, the camera tilt

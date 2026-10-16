@@ -159,6 +159,9 @@ test('every literal key the adopting modules ask for exists', () => {
     '../layers/cctv/presentation.js',
     '../ui/cameraOrientationControls.js',
     '../ui/frameRateMonitor.js',
+    '../ui/radioControls.js',
+    '../ui/railTimeline.js',
+    '../voice/sessionCommands.js',
   ]) {
     const source = readFileSync(new URL(file, import.meta.url), 'utf8');
     for (const [, key] of source.matchAll(/\bt\(\s*'([^']+)'/g))
@@ -168,7 +171,7 @@ test('every literal key the adopting modules ask for exists', () => {
         `${file} asks for unknown key ${key}`,
       );
     for (const [, key] of source.matchAll(
-      /'((?:keySetup|firstRun|panel|display|voice|radio|sdr|cctv|scenes|weather|context|hud|director|contact|cockpit)\.[\w.-]+)'/g,
+      /'((?:keySetup|firstRun|panel|display|voice|radio|sdr|cctv|scenes|weather|context|hud|director|contact|cockpit|sdr)\.[\w.-]+)'/g,
     ))
       assert.ok(Object.hasOwn(EN, key), `${file} names unknown key ${key}`);
   }

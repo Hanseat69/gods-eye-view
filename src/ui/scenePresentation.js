@@ -110,7 +110,12 @@ export function renderSceneShots(
     top.appendChild(actions);
     const meta = document.createElement('div');
     meta.className = 'scene-shot-meta';
-    const mode = shot.visual?.detection?.mode || 'OFF';
+    const storedMode = shot.visual?.detection?.mode;
+    // Shots store the detection mode as written; only "off" has a translation.
+    const mode =
+      !storedMode || String(storedMode).toUpperCase() === 'OFF'
+        ? t('scenes.detectionOff')
+        : storedMode;
     const style = shot.visual?.style || 'normal';
     meta.textContent = `${style.toUpperCase()} · ${mode} · ${shot.durationSec.toFixed(1)}s + ${shot.holdSec.toFixed(1)}s`;
     row.appendChild(top);

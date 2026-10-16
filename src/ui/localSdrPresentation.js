@@ -6,6 +6,54 @@ import { localReceiverFeedName } from '../layers/localAdsb/feedNames.js';
  * receiver session snapshot and returns what each control should show.
  */
 
+// src/sdr/controller.js reports its status in English; it is put into the
+// interface language here, where it is shown.
+const SDR_MESSAGE_KEYS = Object.freeze({
+  'Connect an RTL-SDR to begin.': 'sdr.msg.begin',
+  'WebUSB is unavailable in this browser': 'sdr.msg.noWebUsb',
+  'No RTL-SDR device selected': 'sdr.msg.noDevice',
+  'WebUSB requires desktop Chrome or Edge on localhost/HTTPS':
+    'sdr.msg.needsChromeHttps',
+  'RTL-SDR access failed; close other SDR apps and check USB permissions':
+    'sdr.msg.accessFailed',
+  'RTL-SDR connection failed': 'sdr.msg.connectFailed',
+  'Receiving 1090 MHz ADS-B': 'sdr.msg.receivingAdsb',
+  'Receiving broadcast FM': 'sdr.msg.receivingFm',
+  'SDR decoder worker failed': 'sdr.msg.workerFailed',
+  'WebUSB requires desktop Chrome or Edge': 'sdr.msg.needsChrome',
+  'Waiting for an RTL-SDR device…': 'sdr.msg.waiting',
+  'RTL-SDR sample stream stopped': 'sdr.msg.streamStopped',
+  'Switching to ADS-B…': 'sdr.msg.switchAdsb',
+  'Switching to FM…': 'sdr.msg.switchFm',
+  'RTL-SDR gain change failed': 'sdr.msg.gainFailed',
+  'Seeking up…': 'sdr.msg.seekUp',
+  'Seeking down…': 'sdr.msg.seekDown',
+  'No FM signal found': 'sdr.msg.noSignal',
+  'Seek stopped': 'sdr.msg.seekStopped',
+  'Browser location is unavailable': 'sdr.msg.noLocation',
+  'Receiver location was not granted': 'sdr.msg.locationDenied',
+  'RTL-SDR disconnected': 'sdr.msg.disconnected',
+});
+const SDR_STATE_KEYS = Object.freeze({
+  idle: 'sdr.state.idle',
+  unsupported: 'sdr.state.unsupported',
+  connecting: 'sdr.state.connecting',
+  tuning: 'sdr.state.tuning',
+  error: 'sdr.state.error',
+  disconnected: 'sdr.state.disconnected',
+});
+
+/** @param {string} message @returns {string} */
+export function localizeSdrMessage(message) {
+  const key = SDR_MESSAGE_KEYS[message];
+  return key ? t(key) : message || '';
+}
+
+function stateLabel(status) {
+  const key = SDR_STATE_KEYS[status];
+  return key ? t(key) : String(status || 'idle').toUpperCase();
+}
+
 function formatGain(gain) {
   return gain === 'auto' || !Number.isFinite(gain) ? 'auto' : gain.toFixed(1);
 }
@@ -21,24 +69,24 @@ function statusText(state) {
   const iqStatus =
     state.samplesPerSecond > 0
       ? `${(state.samplesPerSecond / 1_000_000).toFixed(2)} MS/s IQ`
-      : 'waiting for IQ';
+      : t('sdr.detail.waitingIq');
   const device = state.deviceLabel ? ` · ${state.deviceLabel}` : '';
   if (state.connected && !fmActive) {
-    return `${state.message}${device} · ${iqStatus} · ${state.decodedMessages} messages`;
+    return `${localizeSdrMessage(state.message)}${device} · ${iqStatus} · ${t('sdr.detail.messages', { count: state.decodedMessages })}`;
   }
-  const detail = state.seeking
-    ? state.seekMessage
-    : state.seekMessage || state.message;
+  const detail = localizeSdrMessage(
+    state.seeking ? state.seekMessage : state.seekMessage || state.message,
+  );
   if (state.connected && fmActive) {
     const workerStatus =
       state.workerBlocks > 0
-        ? `DSP ${state.workerBlocks} blocks`
-        : 'DSP waiting';
+        ? t('sdr.detail.dspBlocks', { count: state.workerBlocks })
+        : t('sdr.detail.dspWaiting');
     const rfStatus = `RF ${formatIq(state)}`;
     const audioSignal = Number.isFinite(state.audioLevelDbfs)
-      ? `${state.audioLevelDbfs.toFixed(1)} dBFS audio`
-      : 'audio signal --';
-    return `${detail}${device} · ${iqStatus} · ${workerStatus} · ${rfStatus} · ${audioSignal} · audio ${state.audioState}`;
+      ? t('sdr.detail.audioLevel', { level: state.audioLevelDbfs.toFixed(1) })
+      : t('sdr.detail.audioSignal');
+    return `${detail}${device} · ${iqStatus} · ${workerStatus} · ${rfStatus} · ${audioSignal} · ${t('sdr.detail.audioState', { state: state.audioState })}`;
   }
   return detail;
 }
@@ -60,10 +108,10 @@ export function localSdrCardView(state) {
       ? adsbActive
         ? t('sdr.heard', { count: state.aircraftHeard || 0 })
         : t('sdr.streaming')
-      : String(state.status || 'idle').toUpperCase(),
+      : stateLabel(state.status),
     connectionActive: Boolean(state.connected),
     connectLabel: transitional
-      ? String(state.status).toUpperCase()
+      ? stateLabel(state.status)
       : state.connected
         ? t('sdr.disconnect')
         : t('sdr.connect'),
