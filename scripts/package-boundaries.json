@@ -392,7 +392,9 @@
       "src/ui/mapSourceControls.js",
       "src/mapStackChips.js",
       "src/keySetupCore.mjs",
-      "src/localRequestGate.mjs"
+      "src/localRequestGate.mjs",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": []
   },
@@ -500,7 +502,9 @@
       "src/cockpitMath.js",
       "src/cockpitUtilityLayout.js",
       "src/cockpitVisionPolicy.js",
-      "src/ui/panelRailGeometry.js"
+      "src/ui/panelRailGeometry.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": ["cesium"]
   },
@@ -1161,7 +1165,9 @@
       "src/overlays/worldOverlayTokens.js",
       "src/data/cctvFootprint.js",
       "src/data/inputOwnership.js",
-      "src/layers/cctv/sourcePolicy.js"
+      "src/layers/cctv/sourcePolicy.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": ["hls.js", "cesium"]
   },
@@ -1283,7 +1289,9 @@
       "src/maps/terrainRetry.js",
       "src/keySetupCore.mjs",
       "src/localRequestGate.mjs",
-      "src/maps/imageryHost.js"
+      "src/maps/imageryHost.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": ["cesium"]
   },
@@ -2559,7 +2567,9 @@
       "src/data/local_data/osm_military_names/names.json",
       "src/layers/installations/namedMarkers.js",
       "src/data/infrastructureOverlayEntry.js",
-      "src/sources/infrastructureData.js"
+      "src/sources/infrastructureData.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": [
       "hls.js",

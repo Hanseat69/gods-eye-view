@@ -9,6 +9,30 @@ import {
   reduceTrafficSyncFeedback,
 } from '../loadingFeedback.js';
 import { setSplitFlapText, disposeSplitFlap } from '../splitFlap.js';
+import { t } from '../i18n/index.js';
+
+// src/loadingFeedback.js stays free of browser state, so its English labels
+// are put into the interface language here, where they are shown.
+const LOADING_LABEL_KEYS = Object.freeze({
+  'LOAD COMPLETE': 'hud.loading.complete',
+  'LOAD CANCELLED': 'hud.loading.cancelled',
+  'LOAD FAILED': 'hud.loading.failed',
+  'LIVE DATA OFF': 'hud.loading.off',
+  'MAPPED SITES LOADED': 'hud.loading.sitesLoaded',
+  'RETRYING ALPR CAMERAS': 'hud.loading.alprRetry',
+  'FETCHING ALPR CAMERAS': 'hud.loading.alprFetch',
+  'RETRYING MAPPED SITES': 'hud.loading.sitesRetry',
+  'FETCHING MAPPED SITES': 'hud.loading.sitesFetch',
+  'TURNING OFF LIVE DATA': 'hud.loading.disabling',
+  'REFRESHING LIVE DATA': 'hud.loading.refreshing',
+  'LOADING LIVE DATA': 'hud.loading.loading',
+});
+
+/** @param {string} label @returns {string} */
+export function localizeLoadingLabel(label) {
+  const key = LOADING_LABEL_KEYS[label];
+  return key ? t(key) : label;
+}
 export class ShellFeedback {
   constructor({ readLayers }) {
     this.readLayers = readLayers;
@@ -131,7 +155,10 @@ export class ShellFeedback {
     // here: this runs on every 60 ms and 500 ms tick. The detail line is the
     // live layer roster inside an ellipsised, width-capped span — flapping a
     // list that churns as layers join would be noise, not delight.
-    setSplitFlapText(this._globalLoadingLabel, presentation.label);
+    setSplitFlapText(
+      this._globalLoadingLabel,
+      localizeLoadingLabel(presentation.label),
+    );
     this._globalLoadingDetail.textContent = presentation.detail;
   }
 

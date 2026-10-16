@@ -1,6 +1,7 @@
 import { CCTV_AMBIENT_CARD_MAX } from '../../data/cctvLod.js';
 import { ACTIVE_FRAME_REFRESH_MS, IDLE_FRAME_REFRESH_MS } from './policy.js';
 import { headingHudToken, isHeadingEstimated } from './headingConfidence.js';
+import { t } from '../../i18n/index.js';
 
 export function createPresentation({
   state: layerState,
@@ -19,8 +20,8 @@ export function createPresentation({
     const active = parts.selection.getActiveRecord();
     if (!active) {
       return layerState._records.length
-        ? `${layerState._records.length} CAMERAS STANDING BY · NO CAMERA SELECTED · CLICK A CAMERA TO ACTIVATE`
-        : 'No cameras available in catalog.';
+        ? t('cctv.summary.standingBy', { count: layerState._records.length })
+        : t('cctv.summary.empty');
     }
 
     const area = parts.model.sectorAreaKm2(

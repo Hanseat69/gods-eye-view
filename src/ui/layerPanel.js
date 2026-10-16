@@ -107,7 +107,13 @@ function stateText(state, english) {
 export function layerKeyRequirementTooltip(layer = {}) {
   if (layer?.stats?.keyRequired !== true) return '';
   const requiresKeyId = String(layer.requiresKeyId || '').trim();
-  return requiresKeyId ? keySetupRequirement(requiresKeyId) : '';
+  // The registry writes its hint in English for every consumer.
+  return requiresKeyId
+    ? keySetupRequirement(requiresKeyId).replace(
+        /^Needs (.+) — add it in Provider Settings$/,
+        (_, vars) => t('keySetup.requirement', { vars }),
+      )
+    : '';
 }
 
 /** Layer row presentation over supplied state and actions; no layer imports. */

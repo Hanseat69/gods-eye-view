@@ -96,6 +96,12 @@ test('marked template text is the English catalog text', () => {
     }
   }
   assert.ok(marked > 0, 'templates carry translatable text');
+  for (const { name, html } of templates)
+    assert.doesNotMatch(
+      html,
+      /\s\/\s+[a-z-]+="/,
+      `${name}: an attribute follows a self-closing slash`,
+    );
 });
 
 test('text owned by modules matches its English catalog entry', () => {
@@ -138,6 +144,21 @@ test('every literal key the adopting modules ask for exists', () => {
     '../hudLocality.js',
     '../scenes/director.js',
     '../ui/contactDetails.js',
+    '../ui/cockpitInstruments.js',
+    '../ui/cockpitContext.js',
+    '../ui/cockpitLayout.js',
+    '../ui/cockpitBriefing.js',
+    '../ui/cockpitPresentation.js',
+    '../ui/cockpitSignals.js',
+    '../ui/radioBindings.js',
+    '../ui/shellFeedback.js',
+    '../annotations/drawMode.js',
+    '../app/controls.js',
+    '../mapStackChips.js',
+    '../maps/availability.js',
+    '../layers/cctv/presentation.js',
+    '../ui/cameraOrientationControls.js',
+    '../ui/frameRateMonitor.js',
   ]) {
     const source = readFileSync(new URL(file, import.meta.url), 'utf8');
     for (const [, key] of source.matchAll(/\bt\(\s*'([^']+)'/g))
@@ -147,7 +168,7 @@ test('every literal key the adopting modules ask for exists', () => {
         `${file} asks for unknown key ${key}`,
       );
     for (const [, key] of source.matchAll(
-      /'((?:keySetup|firstRun|panel|display|voice|radio|sdr|cctv|scenes|weather|context|hud|director|contact)\.[\w.-]+)'/g,
+      /'((?:keySetup|firstRun|panel|display|voice|radio|sdr|cctv|scenes|weather|context|hud|director|contact|cockpit)\.[\w.-]+)'/g,
     ))
       assert.ok(Object.hasOwn(EN, key), `${file} names unknown key ${key}`);
   }

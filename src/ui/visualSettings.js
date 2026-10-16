@@ -1191,8 +1191,8 @@ export class VisualSettings {
       this._celestialBtn.disabled = !styleSupported;
       this._celestialBtn.setAttribute('aria-disabled', String(!styleSupported));
       this._celestialBtn.title = styleSupported
-        ? 'Celestial ring — reveal the full globe'
-        : 'Celestial ring — available in Normal style';
+        ? t('display.tip.celestial')
+        : t('display.tip.celestialNormalOnly');
     }
     let cameraFocused = false;
     if (nextEnabled && focus) {

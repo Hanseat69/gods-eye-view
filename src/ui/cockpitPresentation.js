@@ -1,4 +1,5 @@
 /** Pure formatting and fixed presentation constants used by Cockpit components. */
+import { t } from '../i18n/index.js';
 export const COCKPIT_HEADING_SLEW_DPS = 28;
 
 export const COCKPIT_FORWARD_OFFSET_M = 7;
@@ -80,16 +81,18 @@ export function isRenderedOnScreen(element) {
 
 export function formatCockpitBriefAge(value) {
   const timestamp = Date.parse(value);
-  if (!Number.isFinite(timestamp)) return 'TIME UNKNOWN';
+  if (!Number.isFinite(timestamp)) return t('cockpit.age.unknown');
   const minutes = Math.max(0, Math.round((Date.now() - timestamp) / 60_000));
-  if (minutes < 60) return `${minutes}M AGO`;
+  if (minutes < 60) return t('cockpit.age.minutes', { count: minutes });
   const hours = Math.round(minutes / 60);
-  return hours < 48 ? `${hours}H AGO` : `${Math.round(hours / 24)}D AGO`;
+  return hours < 48
+    ? t('cockpit.age.hours', { count: hours })
+    : t('cockpit.age.days', { count: Math.round(hours / 24) });
 }
 
 export function formatCockpitWindDirection(value) {
-  if (!Number.isFinite(value)) return 'DIR UNKNOWN';
-  const labels = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+  if (!Number.isFinite(value)) return t('cockpit.wind.unknown');
+  const labels = t('cockpit.compass').split(' ');
   const normalized = ((value % 360) + 360) % 360;
   return `${labels[Math.round(normalized / 45) % labels.length]} · ${Math.round(normalized)}°`;
 }

@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+- Translate the cockpit view (HUD readouts, contact window, flight plan,
+  briefing pages, local weather, signals), the live-data loading chip, the
+  start-up status, map-source key hints, draw-mode guidance, the camera tilt
+  and north-up buttons, the CCTV catalog summary and the Display panel
+  tooltips. Shared modules that must stay free of browser state
+  (`src/loadingFeedback.js`, `src/keySetupCore.mjs`) keep their English text;
+  it is put into the interface language where it is shown. Data attributions
+  and licence notices stay in their original wording.
+
 - Start faster from the double-click launchers. `Start-Windows.bat`,
   `Start-Mac.command` and `start.sh` now pass `--fast`: the launcher serves
   the production build through `vite preview` (about 50 requests and 6 MiB on

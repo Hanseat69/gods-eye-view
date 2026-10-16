@@ -1,5 +1,17 @@
 # God's Eye View Current State
 
+## German cockpit and tooltips — October 16, 2026
+
+`cockpit.*` keys cover `src/ui/templates/cockpit.html` and the cockpit
+modules; vision-mode names, briefing pages and weather labels are looked up
+by id with the English as `default`. `src/loadingFeedback.js` and
+`src/keySetupCore.mjs` stay English because packages that reach them must not
+touch browser globals: `src/ui/shellFeedback.js` maps loading labels to
+`hud.loading.*`, and `src/mapStackChips.js` / `src/ui/layerPanel.js` rewrite
+the "Needs … — add it in Provider Settings" hint. A catalog test now rejects
+an attribute written after a self-closing slash, which Vite cannot parse.
+Credits and licence notices are deliberately not translated.
+
 ## Fast start and edge smoothing — October 16, 2026
 
 `scripts/launch.mjs --fast` builds once and serves `dist/` with

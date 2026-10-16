@@ -1,3 +1,4 @@
+import { t } from '../i18n/index.js';
 import {
   radioTunerSlot,
   radioTunerCommitSlot,
@@ -47,22 +48,24 @@ export function bindRadioControls() {
     );
     if (displayOpen) this.actions.revealStyleParameters();
     if (this._cockpitDisplayToggleBtn) {
-      const action = displayOpen ? 'Collapse' : 'Expand';
-      this._cockpitDisplayToggleBtn.textContent = displayOpen ? '▶' : '◀';
-      this._cockpitDisplayToggleBtn.setAttribute(
-        'aria-label',
-        `${action} Cockpit display options`,
+      const label = t(
+        displayOpen
+          ? 'cockpit.utility.collapseDisplay'
+          : 'cockpit.utility.expandDisplay',
       );
-      this._cockpitDisplayToggleBtn.title = `${action} Cockpit display options`;
+      this._cockpitDisplayToggleBtn.textContent = displayOpen ? '▶' : '◀';
+      this._cockpitDisplayToggleBtn.setAttribute('aria-label', label);
+      this._cockpitDisplayToggleBtn.title = label;
     }
     if (this._cockpitRadioToggleBtn) {
-      const action = radioOpen ? 'Collapse' : 'Expand';
-      this._cockpitRadioToggleBtn.textContent = radioOpen ? '▶' : '◀';
-      this._cockpitRadioToggleBtn.setAttribute(
-        'aria-label',
-        `${action} Cockpit Radio controls`,
+      const label = t(
+        radioOpen
+          ? 'cockpit.utility.collapseRadio'
+          : 'cockpit.utility.expandRadio',
       );
-      this._cockpitRadioToggleBtn.title = `${action} Cockpit Radio controls`;
+      this._cockpitRadioToggleBtn.textContent = radioOpen ? '▶' : '◀';
+      this._cockpitRadioToggleBtn.setAttribute('aria-label', label);
+      this._cockpitRadioToggleBtn.title = label;
     }
     if (!expanded && returnFocus) {
       (kind === 'display'

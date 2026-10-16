@@ -1,4 +1,5 @@
 /** Count rendered globe frames while the optional readout is visible. */
+import { t } from '../i18n/index.js';
 export function createFrameRateMonitor({ viewer, documentRef = document }) {
   const host = documentRef.getElementById('title-bar');
   const frameEvent = viewer?.scene?.postRender;
@@ -8,7 +9,7 @@ export function createFrameRateMonitor({ viewer, documentRef = document }) {
   readout.className = 'frame-rate-readout';
   readout.hidden = true;
   readout.textContent = 'FPS —';
-  readout.title = 'Rendered globe frames per second · toggle with `';
+  readout.title = t('hud.fpsTitle');
   host.appendChild(readout);
   let removeFrameListener = null;
   let timer = null;
