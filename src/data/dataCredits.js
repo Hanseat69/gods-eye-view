@@ -127,6 +127,20 @@ export const DATA_CREDITS = [
       '· each photo credits its photographer and links its photo page',
   },
   {
+    key: 'commons-photos',
+    html:
+      'Vessel photos and some aircraft photos: ' +
+      '<a href="https://commons.wikimedia.org" target="_blank" rel="noopener">Wikimedia Commons</a> ' +
+      '· each photo credits its author and licence and links its file page',
+  },
+  {
+    key: 'digitraffic-ais',
+    html:
+      'Live vessels (Baltic Sea): Fintraffic / ' +
+      '<a href="https://www.digitraffic.fi/en/marine-traffic/" target="_blank" rel="noopener">digitraffic.fi</a>, ' +
+      'license CC BY 4.0',
+  },
+  {
     key: 'aisstream',
     html:
       'Live vessels (AIS): ' +

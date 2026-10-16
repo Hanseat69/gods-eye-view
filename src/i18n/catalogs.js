@@ -400,9 +400,16 @@ const EN = Object.freeze({
   'contact.photoAlt': 'Photo of {title}',
   'contact.photoCredit': 'Photo: {name} · Planespotters.net',
   'contact.photoSource': 'Photo: Planespotters.net',
-  'contact.vesselPhoto':
-    'No openly licensed vessel photos; the linked sites show photos.',
   'contact.openIn': 'Open on {site}',
+  'contact.noPhotoAnywhere':
+    'No photo of this aircraft on Planespotters or Wikimedia Commons',
+  'contact.noVesselPhoto': 'Wikimedia Commons has no photo of this vessel',
+  'contact.vesselNoImo':
+    'A photo needs the IMO number, which this vessel has not broadcast yet.',
+  'contact.commonsAuthor': 'Photo: {name}',
+  'contact.commonsUnknownAuthor': 'unknown author',
+  'contact.formerName': 'Photo shows the vessel under an earlier name: {name}',
+  'contact.photoOpenCommons': 'Open the photo on Wikimedia Commons ↗',
 
   // First-run launcher (src/ui/templates/welcome.html, src/firstRunExperience.js).
   'firstRun.kicker': 'MISSION CONTROL · FIRST LAUNCH',
@@ -1422,9 +1429,16 @@ const DE = Object.freeze({
   'contact.photoAlt': 'Foto von {title}',
   'contact.photoCredit': 'Foto: {name} · Planespotters.net',
   'contact.photoSource': 'Foto: Planespotters.net',
-  'contact.vesselPhoto':
-    'Keine frei lizenzierten Schiffsfotos – die verlinkten Seiten zeigen Fotos.',
   'contact.openIn': 'Auf {site} öffnen',
+  'contact.noPhotoAnywhere':
+    'Kein Foto dieses Flugzeugs bei Planespotters oder Wikimedia Commons',
+  'contact.noVesselPhoto': 'Wikimedia Commons hat kein Foto dieses Schiffs',
+  'contact.vesselNoImo':
+    'Für ein Foto fehlt noch die IMO-Nummer; das Schiff hat sie noch nicht gesendet.',
+  'contact.commonsAuthor': 'Foto: {name}',
+  'contact.commonsUnknownAuthor': 'Urheber unbekannt',
+  'contact.formerName': 'Foto zeigt das Schiff unter früherem Namen: {name}',
+  'contact.photoOpenCommons': 'Foto auf Wikimedia Commons ansehen ↗',
 
   'firstRun.kicker': 'MISSIONSKONTROLLE · ERSTER START',
   'firstRun.title': 'Wähle deine erste Ansicht',

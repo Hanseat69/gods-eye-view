@@ -25,7 +25,12 @@ test('an aircraft shows its type, identifiers, route and photo key', () => {
     'Route FRA → MUC',
     'ICAO 3C6444',
   ]);
-  assert.equal(described.photoHex, '3c6444');
+  assert.deepEqual(described.photo, {
+    kind: 'aircraft',
+    hex: '3c6444',
+    registration: 'D-AIBD',
+    type: 'Airbus A319',
+  });
   assert.deepEqual(
     described.links.map((link) => link.id),
     ['flightradar24', 'adsbexchange', 'planespotters'],
@@ -38,14 +43,14 @@ test('an aircraft without context still links by hex', () => {
     null,
   );
   assert.equal(described.title, '3c6444');
-  assert.equal(described.photoHex, '3c6444');
+  assert.equal(described.photo.hex, '3c6444');
   assert.deepEqual(
     described.links.map((link) => link.id),
     ['adsbexchange', 'planespotters'],
   );
 });
 
-test('a vessel shows its identifiers and links but never asks for a photo', () => {
+test('a vessel shows its identifiers and links and asks for a photo by IMO', () => {
   const described = describeContact(
     { kind: 'vessel', id: 'ais-211331640' },
     {
@@ -64,7 +69,11 @@ test('a vessel shows its identifiers and links but never asks for a photo', () =
     'MMSI 211331640 · IMO 9811000',
     'Destination HAMBURG',
   ]);
-  assert.equal(described.photoHex, null);
+  assert.deepEqual(described.photo, {
+    kind: 'vessel',
+    imo: '9811000',
+    name: 'NORDIC STAR',
+  });
   assert.deepEqual(
     described.links.map((link) => link.id),
     ['marinetraffic', 'vesselfinder', 'myshiptracking'],
@@ -77,4 +86,12 @@ test('owner data is never shown even when a record carries it', () => {
     { properties: { icao24: '3c6444', registered_owner: 'Someone' } },
   );
   assert.ok(!described.lines.join(' ').includes('Someone'));
+});
+
+test('a vessel without an IMO number asks for no photo lookup', () => {
+  const described = describeContact(
+    { kind: 'vessel', id: 'ais-211331640', label: 'NORDIC STAR' },
+    { properties: { mmsi: '211331640' } },
+  );
+  assert.equal(described.photo.imo, null);
 });

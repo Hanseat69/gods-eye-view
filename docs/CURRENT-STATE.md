@@ -1,5 +1,27 @@
 # God's Eye View Current State
 
+## Vessel photos, Commons aircraft fallback and Digitraffic AIS — October 16, 2026
+
+`server/providers/commons/photos.js` serves `/api/commons-photo/vessel/<imo>`
+and `/api/commons-photo/aircraft/<registration>`. Vessels: the
+`Category:IMO <imo>` subcategory whose name matches the AIS name (accents
+folded) wins; otherwise the first subcategory is used and its name returned
+as `formerName`. Aircraft: a `Category:<REG> (aircraft)` subcategory or file
+must match the model token of the current type (`typeTokens`, registration
+digits removed); with type subcategories but no match nothing is shown.
+Thumbnails come from `upload.` or `thumb.wikimedia.org`. Answers are cached
+seven days in `.gev-cache/commons-photos.json`, at most 20 API calls a minute.
+`src/ui/contactDetails.js` asks Planespotters first for aircraft, then Commons;
+vessels go straight to Commons and need an IMO number.
+
+`server/providers/vessels/digitraffic.js` polls Digitraffic while
+`/api/ais-live` is requested (stops after five idle minutes) and writes into
+`ais-store.js` through `ingestVesselReport` / `ingestVesselStatic`; a report
+older than the held fix is ignored. Rows carry `source`. Without an AISStream
+key the route answers 200 with Digitraffic rows and Digitraffic's status.
+Measured: about 660 Baltic vessels in a 30-minute window, about two thirds
+with an IMO number.
+
 ## German cockpit and tooltips — October 16, 2026
 
 `cockpit.*` keys cover `src/ui/templates/cockpit.html` and the cockpit

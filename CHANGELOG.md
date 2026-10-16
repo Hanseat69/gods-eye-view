@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+- Show vessel photos from Wikimedia Commons by IMO number, with author,
+  licence and file page; when the photo shows the hull under an earlier name,
+  the card says so. Aircraft without a Planespotters photo fall back to
+  Commons by registration, but only to a category or file matching the
+  current type, since registrations are reused. IMO numbers are checked
+  against their check digit before any lookup.
+- Merge keyless Baltic Sea vessels from Digitraffic (Fintraffic, CC BY 4.0)
+  into the live vessel layer next to AISStream. Positions are polled once a
+  minute and static data every 15 minutes while the layer is on; the newest
+  fix wins whichever feed delivered it. Without `AISSTREAM_API_KEY` the
+  Baltic Sea still shows vessels. `DIGITRAFFIC_AIS=0` turns it off.
+
 - Translate the remaining interface text: internet radio and tuner, the local
   RTL-SDR card and its status messages, the compact radio controls, Context
   mode buttons, CCTV calibration tooltips, the Recent Imagery panel, the

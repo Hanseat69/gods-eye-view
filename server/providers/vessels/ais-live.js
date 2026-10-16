@@ -10,7 +10,10 @@ import {
   readAisTrack,
   aisStreamRows,
   newestAisPositionAt,
+  ingestVesselReport,
+  ingestVesselStatic,
 } from './ais-store.js';
+import { createDigitrafficPoller } from './digitraffic.js';
 // ---------------------------------------------------------------------------
 // AISStream live vessel cache state
 // ---------------------------------------------------------------------------
@@ -57,6 +60,29 @@ let _aisAdapter = null;
 let _aisWatchdogPolicy = null;
 /** @type {number|null} */
 let _aisStreamTickTimer = null;
+/** @type {ReturnType<typeof createDigitrafficPoller>|null} */
+let _digitraffic = null;
+
+/**
+ * The keyless Digitraffic (Baltic Sea) feed is on unless DIGITRAFFIC_AIS=0.
+ * Read lazily, after Vite has loaded .env.
+ */
+function digitrafficEnabled() {
+  return !/^(0|false|off|no)$/i.test(
+    String(process.env.DIGITRAFFIC_AIS || '').trim(),
+  );
+}
+
+function digitrafficPoller() {
+  if (!_digitraffic)
+    _digitraffic = createDigitrafficPoller({
+      ingestReport: ingestVesselReport,
+      ingestStatic: ingestVesselStatic,
+      warn: (message) => console.warn(message),
+    });
+  return _digitraffic;
+}
+
 /** Set by dispose so the next ensure() re-derives budgets from a reloaded .env. */
 let _aisNeedsRearm = false;
 /** @type {Function|null|undefined} `ws` constructor; null = unavailable, undefined = not yet probed. */
@@ -74,6 +100,8 @@ export function aisLiveProxy() {
     middlewares.use('/api/ais-live', async (req, res) => {
       try {
         ensureAisStreamConnection();
+        const baltic = digitrafficEnabled() ? digitrafficPoller() : null;
+        baltic?.touch();
         const incoming = new URL(req.url || '', 'http://localhost');
 
         // Track sub-route MUST be handled before the rows snapshot — this
@@ -100,7 +128,7 @@ export function aisLiveProxy() {
             JSON.stringify({
               mmsi,
               samples: readAisTrack(mmsi),
-              source: 'AISStream (accumulated since server start)',
+              source: 'AIS (accumulated since server start)',
               retainedSec: Math.floor(AISSTREAM_STALE_MS / 1000),
             }),
           );
@@ -115,15 +143,34 @@ export function aisLiveProxy() {
         );
         const rows = aisStreamRows(maxRows);
 
-        const feed = aisStreamStatusSnapshot();
+        const hasKey = Boolean(process.env.AISSTREAM_API_KEY);
+        const balticFeed = baltic?.snapshot() || null;
+        // Without an AISStream key the Baltic feed alone answers; its status
+        // stands in for the missing one so the layer reads it as live.
+        const feed =
+          !hasKey && balticFeed
+            ? {
+                ...aisStreamStatusSnapshot(),
+                status: balticFeed.status,
+                error: balticFeed.error,
+                lastMessageAt: balticFeed.lastOkAt,
+              }
+            : aisStreamStatusSnapshot();
 
-        res.statusCode = process.env.AISSTREAM_API_KEY ? 200 : 503;
+        res.statusCode = hasKey || balticFeed ? 200 : 503;
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
         res.setHeader('Cache-Control', 'no-store');
         res.end(
           JSON.stringify({
             rows,
-            source: 'AISStream',
+            source: hasKey
+              ? balticFeed
+                ? 'AISStream + Digitraffic'
+                : 'AISStream'
+              : balticFeed
+                ? 'Digitraffic'
+                : 'AISStream',
+            baltic: balticFeed,
             status: feed.status,
             error: feed.error,
             refreshing: feed.status !== 'live',
@@ -359,6 +406,7 @@ function disposeAisStream() {
     _aisStreamTickTimer = null;
   }
   if (_aisAdapter) _aisAdapter.dispose();
+  _digitraffic?.dispose();
   // Drop the cached policy and re-arm LAZILY. Re-deriving budgets here would
   // read process.env before the restarted server's loadEnv() has repopulated
   // it, caching the outgoing configuration; the next ensure() runs after that.

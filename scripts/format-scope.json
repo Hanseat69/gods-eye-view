@@ -64,6 +64,8 @@
   "server/providers/aircraft/tracks.js",
   "server/providers/vessels/ais-store.js",
   "server/providers/vessels/ais-live.js",
+  "server/providers/vessels/digitraffic.js",
+  "server/providers/commons/photos.js",
   "server/providers/live.js",
   "src/tooling/liveProviders.test.mjs",
   "src/data/adsbLolFallback.js",
@@ -905,5 +907,7 @@
   "src/data/contactLinks.test.mjs",
   "src/tooling/aircraftPhotoProvider.test.mjs",
   "src/ui/contactDetails.test.mjs",
-  "src/ui/edgeSmoothing.test.mjs"
+  "src/ui/edgeSmoothing.test.mjs",
+  "src/tooling/commonsPhotoProvider.test.mjs",
+  "src/tooling/digitrafficProvider.test.mjs"
 ]

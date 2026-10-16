@@ -96,6 +96,10 @@
   border-color: var(--accent);
 }
 
+.contact-details-license {
+  color: var(--accent);
+}
+
 .contact-details-photo-fallback {
   display: inline-block;
   margin-top: 4px;
