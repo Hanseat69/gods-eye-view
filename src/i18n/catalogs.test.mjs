@@ -161,6 +161,9 @@ test('every literal key the adopting modules ask for exists', () => {
     '../ui/frameRateMonitor.js',
     '../ui/radioControls.js',
     '../ui/railTimeline.js',
+    '../ui/objectDetailsDialog.js',
+    '../ui/trafficPanel.js',
+    '../ui/contactPhoto.js',
     '../voice/sessionCommands.js',
   ]) {
     const source = readFileSync(new URL(file, import.meta.url), 'utf8');

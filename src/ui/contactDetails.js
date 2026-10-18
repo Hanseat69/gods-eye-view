@@ -1,6 +1,8 @@
 import { t } from '../i18n/index.js';
 import { aircraftLinks, vesselLinks } from '../data/contactLinks.js';
 import { getContextStore } from '../data/contextStore.js';
+import { createContactPhoto } from './contactPhoto.js';
+import { vesselTypeText } from '../data/aisShipTypes.js';
 
 /**
  * Contact details card: a photo and outbound links for the selected aircraft
@@ -67,7 +69,7 @@ export function describeContact(subject, context) {
   const mmsi = text(props.mmsi);
   const imo = text(props.imo);
   const lines = [
-    text(props.type),
+    vesselTypeText(props.type, t),
     [
       mmsi && t('contact.mmsi', { value: mmsi }),
       imo && t('contact.imo', { value: imo }),
@@ -133,182 +135,15 @@ export function startContactDetails({
   documentRef.body.append(root);
 
   let subject = null;
-  let photoKey = null;
-  let photoController = null;
   let refreshTimer = null;
   let signature = '';
 
-  const showPhotoMessage = (message) => {
-    photo.replaceChildren(
-      element(documentRef, 'figcaption', 'contact-details-note', message),
-    );
-  };
-
-  const fetchJson = (url, signal) =>
-    Promise.resolve()
-      .then(() => fetchImpl(url, { signal }))
-      .then((response) => (response?.ok ? response.json() : null));
-
-  /** A link that opens in a new tab without handing over this window. */
-  const outboundLink = (className, label, href) => {
-    const anchor = element(documentRef, 'a', className, label);
-    anchor.href = href;
-    anchor.target = '_blank';
-    anchor.rel = 'noopener';
-    return anchor;
-  };
-
-  /**
-   * Show one photo with its credit. An image the browser cannot load
-   * (blocked, offline, removed) becomes a plain link to the photo page.
-   */
-  const showPhoto = (key, result, { credit, note, openLabel }) => {
-    const caption = element(
-      documentRef,
-      'figcaption',
-      'contact-details-credit',
-    );
-    caption.append(...credit);
-    const anchor = outboundLink('contact-details-photo-link', '', result.link);
-    const image = element(documentRef, 'img');
-    image.alt = t('contact.photoAlt', { title: title.textContent });
-    if (result.width) image.width = result.width;
-    if (result.height) image.height = result.height;
-    const extra = note
-      ? [element(documentRef, 'div', 'contact-details-note', note)]
-      : [];
-    image.addEventListener('error', () => {
-      if (key !== photoKey) return;
-      photo.replaceChildren(
-        element(
-          documentRef,
-          'div',
-          'contact-details-note',
-          t('contact.photoLoadFailed'),
-        ),
-        outboundLink('contact-details-photo-fallback', openLabel, result.link),
-        ...extra,
-        caption,
-      );
-    });
-    image.src = result.thumbnail;
-    anchor.append(image);
-    photo.replaceChildren(anchor, ...extra, caption);
-  };
-
-  /** Credit line for a Wikimedia Commons file: author, licence, source. */
-  const commonsCredit = (result) => {
-    const parts = [
-      documentRef.createTextNode(
-        t('contact.commonsAuthor', {
-          name: result.author || t('contact.commonsUnknownAuthor'),
-        }),
-      ),
-      documentRef.createTextNode(' · '),
-    ];
-    parts.push(
-      result.licenseUrl
-        ? outboundLink(
-            'contact-details-license',
-            result.license,
-            result.licenseUrl,
-          )
-        : documentRef.createTextNode(result.license),
-    );
-    parts.push(documentRef.createTextNode(' · Wikimedia Commons'));
-    return parts;
-  };
-
-  const showCommons = (key, result) =>
-    showPhoto(key, result, {
-      credit: commonsCredit(result),
-      note: result.formerName
-        ? t('contact.formerName', { name: result.formerName })
-        : '',
-      openLabel: t('contact.photoOpenCommons'),
-    });
-
-  const loadPhoto = (request) => {
-    const key = request ? JSON.stringify(request) : null;
-    if (key === photoKey) return;
-    photoKey = key;
-    photoController?.abort();
-    photoController = null;
-    if (!request) {
-      showPhotoMessage('');
-      photo.hidden = true;
-      return;
-    }
-    photo.hidden = false;
-    if (request.kind === 'vessel' && !request.imo) {
-      showPhotoMessage(t('contact.vesselNoImo'));
-      return;
-    }
-    showPhotoMessage(t('contact.photoLoading'));
-    const controller = new AbortController();
-    photoController = controller;
-    const current = () => !controller.signal.aborted && key === photoKey;
-    const commonsUrl =
-      request.kind === 'vessel'
-        ? `/api/commons-photo/vessel/${request.imo}?name=${encodeURIComponent(request.name || '')}`
-        : request.registration
-          ? `/api/commons-photo/aircraft/${encodeURIComponent(request.registration)}?type=${encodeURIComponent(request.type || '')}`
-          : null;
-
-    const tryCommons = (unavailableBefore) => {
-      if (!commonsUrl) {
-        showPhotoMessage(
-          t(unavailableBefore ? 'contact.photoUnavailable' : 'contact.noPhoto'),
-        );
-        return null;
-      }
-      return fetchJson(commonsUrl, controller.signal).then((result) => {
-        if (!current()) return;
-        if (result?.found && result.thumbnail && result.link) {
-          showCommons(key, result);
-          return;
-        }
-        const unavailable = unavailableBefore || result?.unavailable;
-        showPhotoMessage(
-          t(
-            unavailable
-              ? 'contact.photoUnavailable'
-              : request.kind === 'vessel'
-                ? 'contact.noVesselPhoto'
-                : 'contact.noPhotoAnywhere',
-          ),
-        );
-      });
-    };
-
-    const lookup =
-      request.kind === 'vessel'
-        ? tryCommons(false)
-        : fetchJson(
-            `/api/aircraft-photo/${request.hex}`,
-            controller.signal,
-          ).then((result) => {
-            if (!current()) return;
-            if (result?.found && result.thumbnail && result.link) {
-              showPhoto(key, result, {
-                credit: [
-                  documentRef.createTextNode(
-                    result.photographer
-                      ? t('contact.photoCredit', { name: result.photographer })
-                      : t('contact.photoSource'),
-                  ),
-                ],
-                note: '',
-                openLabel: t('contact.photoOpen'),
-              });
-              return;
-            }
-            return tryCommons(Boolean(result?.unavailable || !result));
-          });
-    Promise.resolve(lookup).catch(() => {
-      if (current()) showPhotoMessage(t('contact.photoUnavailable'));
-    });
-  };
+  const photoView = createContactPhoto({
+    documentRef,
+    fetchImpl,
+    figure: photo,
+    getTitle: () => title.textContent,
+  });
 
   const render = () => {
     if (!subject) return;
@@ -338,14 +173,14 @@ export function startContactDetails({
         }),
       );
     }
-    loadPhoto(described.photo);
+    photoView.load(described.photo);
     root.hidden = false;
   };
 
   const show = (next) => {
     subject = next;
     signature = '';
-    photoKey = undefined;
+    photoView.reset();
     // The tracking layers publish their context record right after the
     // selection event, so read it on the next microtask.
     queueMicrotask(render);
@@ -355,9 +190,7 @@ export function startContactDetails({
 
   const hide = () => {
     subject = null;
-    photoController?.abort();
-    photoController = null;
-    photoKey = null;
+    photoView.abort();
     windowRef.clearInterval(refreshTimer);
     refreshTimer = null;
     root.hidden = true;

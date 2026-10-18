@@ -909,5 +909,7 @@
   "src/ui/contactDetails.test.mjs",
   "src/ui/edgeSmoothing.test.mjs",
   "src/tooling/commonsPhotoProvider.test.mjs",
-  "src/tooling/digitrafficProvider.test.mjs"
+  "src/tooling/digitrafficProvider.test.mjs",
+  "src/ui/objectDetails.test.mjs",
+  "src/ui/trafficPanel.test.mjs"
 ]

@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+- Right click any object on the globe (or long press on a touch screen) for
+  a details dialog: every field the app holds for it from the owning layer
+  and the shared context record, formatted with units, plus photo and links
+  for aircraft and vessels. A right drag still zooms. AIS ship type codes now
+  read as classes ("Cargo ship") in the dialog and the contact card.
+- Switch aircraft, vessels or both from a quick switch at the top centre,
+  and list the 20 aircraft and vessels closest to the centre of the view;
+  picking one tracks the aircraft or flies to the vessel. The switch drives
+  the same layers as the Data Layers panel.
+
 - Show vessel photos from Wikimedia Commons by IMO number, with author,
   licence and file page; when the photo shows the hull under an earlier name,
   the card says so. Aircraft without a Planespotters photo fall back to

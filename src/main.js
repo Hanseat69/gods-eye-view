@@ -4,6 +4,8 @@ import { describeError } from './standalone/errors.js';
 import { applyPageLocale } from './standalone/locale.js';
 import { applyPageReadability } from './standalone/readability.js';
 import { startContactDetails } from './ui/contactDetails.js';
+import { startObjectDetails } from './ui/objectDetailsDialog.js';
+import { startTrafficPanel } from './ui/trafficPanel.js';
 
 applyPageLocale();
 applyPageReadability();
@@ -19,6 +21,11 @@ const application = createStandaloneApplication({
 application
   .start()
   .then(applyEdgeSmoothing)
+  .then(() => {
+    // Both need the globe and the data layers, which exist once start() resolves.
+    startTrafficPanel();
+    startObjectDetails();
+  })
   .catch((error) => {
     console.error("God's Eye View initialization failed:", error);
     const loaderStatus = document.querySelector(

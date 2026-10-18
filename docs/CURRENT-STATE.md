@@ -1,5 +1,26 @@
 # God's Eye View Current State
 
+## Object details dialog, traffic quick switch and Nearby list — October 18, 2026
+
+`src/ui/objectDetailsDialog.js` listens for `contextmenu` on the Cesium
+canvas and opens only when the pointer moved at most 6 px since the right
+button went down, so a right drag keeps zooming; a 600 ms touch press opens it
+too. It picks with `scene.pick`, resolves the owner through
+`pickOwner()` (new in `src/data/pickRegistry.js`) and gathers fields in
+`src/ui/objectDetails.js` from the layer's `getAnalystRecords`, its
+`getAllPositions` row, the plain record on the primitive and the context
+record, in that order (context values are often pre-formatted English text).
+The photo block is shared with the contact card through
+`src/ui/contactPhoto.js`. `src/data/aisShipTypes.js` maps AIS ship type codes
+to `vesselType.*` keys.
+
+`src/ui/trafficPanel.js` mounts after `application.start()`: the switch calls
+`dataManager.setEnabled` for `flights` and `ais-live-vessels` and follows
+`dataManager.subscribe`; the list reads `getAllPositions` of the enabled
+flight, military and vessel layers, measures from the globe point under the
+view centre, and selects through `trackById` / `selectById`. The contact card
+moved down to `top: 124px` to sit under the switch.
+
 ## Vessel photos, Commons aircraft fallback and Digitraffic AIS — October 16, 2026
 
 `server/providers/commons/photos.js` serves `/api/commons-photo/vessel/<imo>`
