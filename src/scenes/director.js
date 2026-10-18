@@ -60,6 +60,7 @@ import {
   stringifySceneDocument,
   SceneDocumentError,
 } from '../director/document.js';
+import { t } from '../i18n/index.js';
 
 /** @constant {string} localStorage key for the serialized project */
 const STORAGE_KEY = 'godsEyeView.sceneProject.v2';
@@ -122,7 +123,7 @@ export class SceneDirector {
       )
         return;
       if (this._usesAuthoredCamera && !this._claimingCamera)
-        this.stopScene('Camera ownership changed');
+        this.stopScene(t('director.cameraOwnership'));
     };
     this._cameraHandoffUnsubscribe =
       styleManager.subscribeCameraHandoff?.(yieldCamera);
@@ -171,8 +172,8 @@ export class SceneDirector {
 
     this._presentation = {
       status: this._storageReadError
-        ? 'Saved project could not be read; storage preserved. Import a valid file to resume saving.'
-        : 'Ready',
+        ? t('director.storageUnreadable')
+        : t('scenes.ready'),
       progress: 0,
       runtime: '',
       playbackActive: false,
@@ -210,7 +211,7 @@ export class SceneDirector {
           return;
         const scene = this._getSelectedScene();
         if (!scene?.releaseLayerIds?.includes(change.layerId)) return;
-        this.stopScene('Scene layer turned off');
+        this.stopScene(t('director.layerOff'));
       });
   }
 
@@ -238,7 +239,7 @@ export class SceneDirector {
     this._controls?.destroy();
     this._state.destroy();
     this._destroyPromise = Promise.resolve().then(async () => {
-      this.stopScene('Stopped');
+      this.stopScene(t('director.stopped'));
       this._loadAbort?.abort();
       this._loadGeneration++;
       this.viewer.camera.cancelFlight();
@@ -313,9 +314,7 @@ export class SceneDirector {
   /** Persist the current project state to localStorage with an updated timestamp. */
   _saveProject() {
     if (this._storageReadError) {
-      this._toastStorageError(
-        'Scene not saved — existing saved project could not be read. Export edits or import a valid file.',
-      );
+      this._toastStorageError(t('director.notSavedUnreadable'));
       return;
     }
     this._project.updatedAt = new Date().toISOString();
@@ -333,16 +332,14 @@ export class SceneDirector {
       );
       this._toastStorageError(
         e instanceof SceneDocumentError
-          ? `Scene not saved — ${e.message}`
+          ? t('director.notSavedReason', { reason: e.message })
           : undefined,
       );
     }
   }
 
   /** Surface a "scene not saved" notice via the global toast + scene status line. */
-  _toastStorageError(
-    message = 'Scene not saved — browser storage unavailable',
-  ) {
+  _toastStorageError(message = t('director.notSaved')) {
     this._updateStatus(message);
     try {
       const toast = document.getElementById('toast');
@@ -370,7 +367,10 @@ export class SceneDirector {
 
   _shotOutcome(type, scene, shot, index = scene.shots.indexOf(shot)) {
     if (type === 'shot-loaded')
-      this._presentation.status = `Loaded: ${scene.title} / ${shot.title}`;
+      this._presentation.status = t('director.loaded', {
+        scene: scene.title,
+        shot: shot.title,
+      });
     this._publish({
       type,
       sceneId: scene.id,
@@ -485,7 +485,9 @@ export class SceneDirector {
 
     const scene = {
       id: uid('scene'),
-      title: sceneName.trim() || `Scene ${this._project.scenes.length + 1}`,
+      title:
+        sceneName.trim() ||
+        t('scenes.defaultName', { number: this._project.scenes.length + 1 }),
       shots: [],
     };
 
@@ -763,7 +765,7 @@ export class SceneDirector {
             ));
       if (!inventoryMatches) {
         this._updateStatus(
-          `Cannot update ${recipe.title}: shot inventory changed`,
+          t('director.cannotUpdateInventory', { recipe: recipe.title }),
         );
         return {
           appended: false,
@@ -794,7 +796,7 @@ export class SceneDirector {
         );
       if (!sourcePackMatches) {
         this._updateStatus(
-          `Cannot update ${recipe.title}: evidence beats changed`,
+          t('director.cannotUpdateBeats', { recipe: recipe.title }),
         );
         return {
           appended: false,
@@ -817,7 +819,7 @@ export class SceneDirector {
     }));
     if (resolvedPatches.some(({ shot }) => !shot)) {
       this._updateStatus(
-        `Cannot update ${recipe.title}: shot bindings are incomplete`,
+        t('director.cannotUpdateBindings', { recipe: recipe.title }),
       );
       return {
         appended: false,
@@ -897,8 +899,16 @@ export class SceneDirector {
     if (announce) {
       this._updateStatus(
         marker
-          ? `Updated ${patchedShotCount} ${patchedShotCount === 1 ? 'shot' : 'shots'}: ${recipe.title}`
-          : `Appended ${appendedShots.length} shots: ${recipe.title}`,
+          ? t(
+              patchedShotCount === 1
+                ? 'director.updatedShot'
+                : 'director.updatedShots',
+              { count: patchedShotCount, recipe: recipe.title },
+            )
+          : t('director.appendedShots', {
+              count: appendedShots.length,
+              recipe: recipe.title,
+            }),
       );
     }
     return {
@@ -920,14 +930,14 @@ export class SceneDirector {
 
     const camera = this.styleManager.getCameraState();
     if (!camera) {
-      this._updateStatus('Cannot capture shot: camera not ready');
+      this._updateStatus(t('director.cameraNotReady'));
       return;
     }
 
     const shot = normalizeShot(
       {
         id: uid('shot'),
-        title: `Shot ${scene.shots.length + 1}`,
+        title: t('director.defaultShot', { number: scene.shots.length + 1 }),
         durationSec: DEFAULT_SHOT_DURATION_SEC,
         holdSec: DEFAULT_HOLD_SEC,
         camera,
@@ -941,7 +951,9 @@ export class SceneDirector {
     this._selectedShotId = shot.id;
     this._saveProject();
     this._shotOutcome('shot-captured', scene, shot);
-    this._updateStatus(`Captured: ${scene.title} / ${shot.title}`);
+    this._updateStatus(
+      t('director.captured', { scene: scene.title, shot: shot.title }),
+    );
   }
 
   /**
@@ -954,7 +966,7 @@ export class SceneDirector {
 
     const shot = scene.shots.find((item) => item.id === this._selectedShotId);
     if (!shot) {
-      this._updateStatus('Select a shot first');
+      this._updateStatus(t('director.selectShot'));
       return;
     }
 
@@ -969,7 +981,9 @@ export class SceneDirector {
 
     this._saveProject();
     this._shotOutcome('shot-updated', scene, shot);
-    this._updateStatus(`Updated: ${scene.title} / ${shot.title}`);
+    this._updateStatus(
+      t('director.updated', { scene: scene.title, shot: shot.title }),
+    );
   }
 
   /**
@@ -1075,7 +1089,9 @@ export class SceneDirector {
       const released = await this._releaseSceneLayers(previousScene, token);
       if (!released || token.cancelled) {
         if (!token.cancelled)
-          this._updateStatus(`Could not leave scene: ${previousScene.title}`);
+          this._updateStatus(
+            t('director.couldNotLeave', { scene: previousScene.title }),
+          );
         return;
       }
       this._loadedSceneId = null;
@@ -1125,7 +1141,9 @@ export class SceneDirector {
         seeking: true,
       });
       if (this._loadAbort === controller) this._loadAbort = null;
-      this._updateStatus(`Seeked: ${scene.title} / ${shot.title}`);
+      this._updateStatus(
+        t('director.seeked', { scene: scene.title, shot: shot.title }),
+      );
       this._activateInteractions(scene, shot);
       return { started: true, shotId };
     }
@@ -1487,14 +1505,16 @@ export class SceneDirector {
       running: false,
       seeking: true,
     });
-    this._updateStatus(`Seeked: ${scene.title} / ${shot.title}`);
+    this._updateStatus(
+      t('director.seeked', { scene: scene.title, shot: shot.title }),
+    );
     return true;
   }
 
   /** Seek the complete authored scene state to an exact clock position. */
   seekScene(sceneId, progress) {
     if (this._destroyed) return Promise.resolve(false);
-    this.stopScene('Seeking scene clock');
+    this.stopScene(t('director.seeking'));
     const generation = ++this._sceneSeekGeneration;
     return this._trackWork(this._seekScene(sceneId, progress, generation));
   }
@@ -1564,7 +1584,7 @@ export class SceneDirector {
       this._claimingCamera = false;
     }
     if (claimed === false) {
-      this._updateStatus('Camera unavailable — exit cockpit first');
+      this._updateStatus(t('director.cameraUnavailable'));
       return false;
     }
     return true;
@@ -1699,7 +1719,7 @@ export class SceneDirector {
       if (!queue.length) return { started: false, reason: 'scene-complete' };
     }
     if (!queue.length) {
-      this._updateStatus('No shots to run');
+      this._updateStatus(t('director.noShots'));
       return { started: false, reason: 'no-shots' };
     }
 
@@ -1782,7 +1802,11 @@ export class SceneDirector {
         releaseOnFinish: preview,
       });
     } catch (error) {
-      this._updateStatus(`Error: ${error.message || 'run failed'}`);
+      this._updateStatus(
+        t('director.runError', {
+          message: error.message || t('director.runFailed'),
+        }),
+      );
       this._logEvent('scene_run_error', {
         message: error.message || 'unknown error',
       });
@@ -1828,7 +1852,7 @@ export class SceneDirector {
    *
    * @param {string} [reason='Stopped'] - Human-readable cancellation reason
    */
-  stopScene(reason = 'Stopped') {
+  stopScene(reason = t('director.stopped')) {
     this._setSceneMediaPlayback();
     this._interactions?.clear();
     this._dataPacks?.clear();
@@ -1899,9 +1923,7 @@ export class SceneDirector {
     }
     if (action.type === 'shot') {
       if (this._interactionTransitions >= 64) {
-        this._updateStatus(
-          'Scene transition limit reached — load a shot to reset',
-        );
+        this._updateStatus(t('director.transitionLimit'));
         return false;
       }
       this._interactionTransitions++;
@@ -1943,7 +1965,9 @@ export class SceneDirector {
     try {
       payload = stringifySceneDocument(this._project);
     } catch (error) {
-      this._updateStatus(`Export failed: ${error.message}`);
+      this._updateStatus(
+        t('director.exportFailed', { message: error.message }),
+      );
       return;
     }
     // Trigger a browser download via a temporary anchor element
@@ -1956,7 +1980,7 @@ export class SceneDirector {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    this._presentation.status = 'Project exported';
+    this._presentation.status = t('director.exported');
     this._publish({ type: 'project-exported', project: this._project });
   }
 
@@ -1986,7 +2010,7 @@ export class SceneDirector {
       )
         return false;
       // Validate before touching playback, selection or the saved project.
-      this.stopScene('Importing project');
+      this.stopScene(t('director.importing'));
       await Promise.allSettled([...(this._pendingWork || [])]);
       if (this._destroyed || generation !== this._importGeneration) return;
       if (
@@ -2016,7 +2040,7 @@ export class SceneDirector {
       this._loadedSceneId = null;
       this._saveProject();
       this._publish({ type: 'project-imported', project });
-      this._updateStatus(`Imported ${file.name}`);
+      this._updateStatus(t('director.imported', { file: file.name }));
       return true;
     } catch (error) {
       if (
@@ -2027,8 +2051,8 @@ export class SceneDirector {
         return false;
       this._updateStatus(
         error instanceof SceneDocumentError
-          ? `Import failed: ${error.message}`
-          : 'Import failed (could not read JSON file)',
+          ? t('director.importFailed', { message: error.message })
+          : t('director.importFailedJson'),
       );
     }
   }
@@ -2128,7 +2152,9 @@ export class SceneDirector {
     }
 
     if (refused.length) {
-      this._updateStatus(`Layers refused: ${refused.join(', ')}`);
+      this._updateStatus(
+        t('director.layersRefused', { layers: refused.join(', ') }),
+      );
       this._logEvent('shot_layers_refused', { layerIds: [...refused] });
     }
     return { applied, refused, cancelled: false };
@@ -2218,9 +2244,7 @@ export class SceneDirector {
         `[Scenes] Could not exit ${mode}:`,
         result.error || 'unknown reason',
       );
-      this._updateStatus(
-        `Could not exit ${mode} — scene layers may be refused`,
-      );
+      this._updateStatus(t('director.couldNotExit', { mode }));
       this._logEvent('context_mode_exit_failed', {
         mode,
         error: result.error || null,
@@ -2245,7 +2269,7 @@ export class SceneDirector {
       token,
     );
     if (!completed && !token.cancelled && !this._destroyed)
-      this.stopScene('Camera move interrupted');
+      this.stopScene(t('director.cameraInterrupted'));
   }
 
   /**
@@ -2334,7 +2358,7 @@ export class SceneDirector {
       const pending = readers.filter(({ read }) => read()?.pending === true);
       if (!pending.length) return;
       if (pending.some(({ maxWaitMs }) => Date.now() - began >= maxWaitMs)) {
-        this.stopScene('Scene media timed out');
+        this.stopScene(t('director.mediaTimeout'));
         throw new Error(
           'Scene media did not finish within its bounded playback window',
         );

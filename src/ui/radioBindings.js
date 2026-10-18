@@ -1,3 +1,4 @@
+import { t } from '../i18n/index.js';
 import {
   radioTunerSlot,
   radioTunerCommitSlot,
@@ -47,22 +48,24 @@ export function bindRadioControls() {
     );
     if (displayOpen) this.actions.revealStyleParameters();
     if (this._cockpitDisplayToggleBtn) {
-      const action = displayOpen ? 'Collapse' : 'Expand';
-      this._cockpitDisplayToggleBtn.textContent = displayOpen ? '▶' : '◀';
-      this._cockpitDisplayToggleBtn.setAttribute(
-        'aria-label',
-        `${action} Cockpit display options`,
+      const label = t(
+        displayOpen
+          ? 'cockpit.utility.collapseDisplay'
+          : 'cockpit.utility.expandDisplay',
       );
-      this._cockpitDisplayToggleBtn.title = `${action} Cockpit display options`;
+      this._cockpitDisplayToggleBtn.textContent = displayOpen ? '▶' : '◀';
+      this._cockpitDisplayToggleBtn.setAttribute('aria-label', label);
+      this._cockpitDisplayToggleBtn.title = label;
     }
     if (this._cockpitRadioToggleBtn) {
-      const action = radioOpen ? 'Collapse' : 'Expand';
-      this._cockpitRadioToggleBtn.textContent = radioOpen ? '▶' : '◀';
-      this._cockpitRadioToggleBtn.setAttribute(
-        'aria-label',
-        `${action} Cockpit Radio controls`,
+      const label = t(
+        radioOpen
+          ? 'cockpit.utility.collapseRadio'
+          : 'cockpit.utility.expandRadio',
       );
-      this._cockpitRadioToggleBtn.title = `${action} Cockpit Radio controls`;
+      this._cockpitRadioToggleBtn.textContent = radioOpen ? '▶' : '◀';
+      this._cockpitRadioToggleBtn.setAttribute('aria-label', label);
+      this._cockpitRadioToggleBtn.title = label;
     }
     if (!expanded && returnFocus) {
       (kind === 'display'
@@ -139,18 +142,25 @@ export function bindRadioControls() {
     syncTunerTape(resolvedCoordinate);
     if (this._radioTunerValue) {
       this._radioTunerValue.textContent = station
-        ? `CH ${String(slot.stationIndex + 1).padStart(2, '0')} / ${String(this._radioTunerStations.length).padStart(2, '0')}`
-        : 'NO STATIONS';
+        ? t('radio.tuner.channel', {
+            index: String(slot.stationIndex + 1).padStart(2, '0'),
+            total: String(this._radioTunerStations.length).padStart(2, '0'),
+          })
+        : t('radio.tuner.none');
     }
     if (this._radioTunerStation)
       this._radioTunerStation.textContent =
-        station?.name || 'NO STATION AVAILABLE';
+        station?.name || t('radio.tuner.noStation');
     if (this._radioTunerSlider) {
       this._radioTunerSlider.setAttribute(
         'aria-valuetext',
         station
-          ? `${station.name}, station ${slot.stationIndex + 1} of ${this._radioTunerStations.length}`
-          : 'No station available',
+          ? t('radio.tuner.valueText', {
+              name: station.name,
+              index: slot.stationIndex + 1,
+              total: this._radioTunerStations.length,
+            })
+          : t('radio.tuner.noStationText'),
       );
     }
     if (syncStatic)
@@ -301,12 +311,12 @@ export function bindRadioControls() {
       this._radioTunerBandPinnedForNavigation = false;
       if (result.reason === 'station-unavailable') {
         if (this._radioTunerValue)
-          this._radioTunerValue.textContent = 'OFF AIR';
+          this._radioTunerValue.textContent = t('radio.tuner.offAir');
         if (this._radioTunerStation)
-          this._radioTunerStation.textContent = 'STATION UNAVAILABLE';
+          this._radioTunerStation.textContent = t('radio.tuner.unavailable');
         this._radioTunerSlider?.setAttribute(
           'aria-valuetext',
-          'Station unavailable after directory refresh',
+          t('radio.tuner.unavailableText'),
         );
       }
     }

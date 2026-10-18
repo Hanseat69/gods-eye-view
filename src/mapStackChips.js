@@ -11,6 +11,7 @@
 // or superseded switch still leaves the truly-active stack lit.
 
 import { keySetupRequirement } from './keySetupCore.mjs';
+import { t } from './i18n/index.js';
 
 export const MAP_STACK_CHIP_CLASS = 'map-stack-chip';
 export const PRESENTED_MAP_STACK_IDS = Object.freeze([
@@ -33,16 +34,32 @@ export const PRESENTED_MAP_STACK_IDS = Object.freeze([
  * @param {string|null} activeId - Currently active stack id.
  * @returns {{id: string, label: string, available: boolean, active: boolean, requiresIon: boolean, requirement: string, unavailableHint: string, title: string}}
  */
+/**
+ * The key registry writes its hint in English for every consumer; the chip
+ * shows it in the interface language.
+ * @param {string} text
+ * @returns {string}
+ */
+function localizeKeyRequirement(text) {
+  return text.replace(/^Needs (.+?) — add it in Provider Settings/, (_, vars) =>
+    t('keySetup.requirement', { vars }),
+  );
+}
+
 export function mapStackChipModel(stack, activeId) {
   const available = stack?.available !== false;
   const label = String(stack?.label ?? stack?.id ?? '');
   const requiresIon = stack?.requiresIon === true;
   const fallbackReason = requiresIon
     ? keySetupRequirement('cesium-ion')
-    : `${label || 'This map stack'} is unavailable`;
+    : t('keySetup.stackUnavailable', {
+        label: label || t('keySetup.thisStack'),
+      });
   const unavailableHint = available
     ? ''
-    : String(stack?.unavailableReason || fallbackReason);
+    : localizeKeyRequirement(
+        String(stack?.unavailableReason || fallbackReason),
+      );
   return {
     id: String(stack?.id ?? ''),
     label,
@@ -119,7 +136,10 @@ export function renderMapStackChips(
     if (!model.available) {
       chip.setAttribute(
         'aria-label',
-        `${model.label} unavailable: ${model.unavailableHint}`,
+        t('keySetup.mapUnavailable', {
+          label: model.label,
+          hint: model.unavailableHint,
+        }),
       );
     }
 

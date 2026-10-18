@@ -50,6 +50,7 @@
       "server/providers/aircraft/tracks.js",
       "server/providers/vessels/ais-store.js",
       "server/providers/vessels/ais-live.js",
+      "server/providers/vessels/digitraffic.js",
       "src/data/adsbLolFallback.js",
       "src/data/aisStreamAdapter.js",
       "src/data/aisWatchdog.js",
@@ -392,7 +393,9 @@
       "src/ui/mapSourceControls.js",
       "src/mapStackChips.js",
       "src/keySetupCore.mjs",
-      "src/localRequestGate.mjs"
+      "src/localRequestGate.mjs",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": []
   },
@@ -413,7 +416,9 @@
       "src/keySetupCore.mjs",
       "src/localRequestGate.mjs",
       "src/data/feedState.js",
-      "src/data/layerSnapshot.js"
+      "src/data/layerSnapshot.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": []
   },
@@ -435,7 +440,9 @@
       "src/ui/radioControls.js",
       "src/ui/radioBindings.js",
       "src/ui/radioPresentation.js",
-      "src/ui/radioTunerModel.js"
+      "src/ui/radioTunerModel.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": []
   },
@@ -448,7 +455,9 @@
       "src/ui/cctvControls.js",
       "src/ui/cctvFrames.js",
       "src/ui/cctvVideo.js",
-      "src/ui/cctvPresentation.js"
+      "src/ui/cctvPresentation.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": []
   },
@@ -494,7 +503,9 @@
       "src/cockpitMath.js",
       "src/cockpitUtilityLayout.js",
       "src/cockpitVisionPolicy.js",
-      "src/ui/panelRailGeometry.js"
+      "src/ui/panelRailGeometry.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": ["cesium"]
   },
@@ -503,7 +514,9 @@
     "modules": [
       "src/ui/scenes.js",
       "src/ui/sceneControls.js",
-      "src/ui/scenePresentation.js"
+      "src/ui/scenePresentation.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": []
   },
@@ -638,7 +651,9 @@
       "src/ui/localSdrControls.js",
       "src/layers/localAdsb/feedNames.js",
       "src/ui/localSdrPresentation.js",
-      "src/data/cameraArrival.js"
+      "src/data/cameraArrival.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": ["cesium"]
   },
@@ -743,7 +758,9 @@
       "src/director/authoring.js",
       "src/scenes/sharing.js",
       "src/ui/sceneSharing.js",
-      "src/data/cameraArrival.js"
+      "src/data/cameraArrival.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": ["cesium"]
   },
@@ -1149,7 +1166,9 @@
       "src/overlays/worldOverlayTokens.js",
       "src/data/cctvFootprint.js",
       "src/data/inputOwnership.js",
-      "src/layers/cctv/sourcePolicy.js"
+      "src/layers/cctv/sourcePolicy.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": ["hls.js", "cesium"]
   },
@@ -1271,7 +1290,9 @@
       "src/maps/terrainRetry.js",
       "src/keySetupCore.mjs",
       "src/localRequestGate.mjs",
-      "src/maps/imageryHost.js"
+      "src/maps/imageryHost.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": ["cesium"]
   },
@@ -1305,7 +1326,9 @@
       "src/voice/realtimeFacade.js",
       "src/voice/realtimeRadio.js",
       "src/voice/realtimeTurns.js",
-      "src/voice/realtimeConnection.js"
+      "src/voice/realtimeConnection.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": []
   },
@@ -1514,6 +1537,8 @@
       "src/hud.js",
       "src/hudLocality.js",
       "src/hudSummaryResponse.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js",
       "src/keySetup.js",
       "src/keySetupCore.mjs",
       "src/localRequestGate.mjs",
@@ -2543,7 +2568,9 @@
       "src/data/local_data/osm_military_names/names.json",
       "src/layers/installations/namedMarkers.js",
       "src/data/infrastructureOverlayEntry.js",
-      "src/sources/infrastructureData.js"
+      "src/sources/infrastructureData.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": [
       "hls.js",
@@ -2670,7 +2697,9 @@
       "src/ui/visualEffects.js",
       "src/ui/visualInput.js",
       "src/ui/visualPresets.js",
-      "src/ui/visualSettings.js"
+      "src/ui/visualSettings.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": ["cesium"]
   },
@@ -2689,7 +2718,9 @@
       "src/ui/panelRailGeometry.js",
       "src/ui/panelRails.js",
       "src/ui/rightPanelRail.js",
-      "src/ui/uiLifetime.js"
+      "src/ui/uiLifetime.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": []
   },
@@ -2782,7 +2813,9 @@
     "modules": [
       "src/voice/sessionCommands.js",
       "src/voice/session.js",
-      "src/voice/control.js"
+      "src/voice/control.js",
+      "src/i18n/catalogs.js",
+      "src/i18n/index.js"
     ],
     "external": []
   },

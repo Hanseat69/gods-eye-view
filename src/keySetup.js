@@ -1,3 +1,4 @@
+import { t } from './i18n/index.js';
 import { createSurfaceKeyboard } from './ui/surfaceKeyboard.js';
 
 /**
@@ -19,9 +20,11 @@ import { createSurfaceKeyboard } from './ui/surfaceKeyboard.js';
 /** Chip label — pure, exported for tests. */
 export function keySetupChipLabel(status) {
   const missing = Math.max(0, (status?.total || 0) - (status?.setCount || 0));
-  return missing > 0
-    ? `POWER UP · ${missing} ${missing === 1 ? 'KEY' : 'KEYS'} WAITING`
-    : 'POWERED UP';
+  if (missing === 0) return t('keySetup.chip.done');
+  return t(
+    missing === 1 ? 'keySetup.chip.waitingOne' : 'keySetup.chip.waitingMany',
+    { count: missing },
+  );
 }
 
 /**
@@ -80,17 +83,15 @@ function buildRow(documentRef, key) {
   const tier = documentRef.createElement('span');
   tier.className = 'key-setup-tier';
   tier.textContent = TIER_DOTS[key.tier] || '';
-  tier.title =
-    key.tier === 'metered'
-      ? 'Metered — a billing-enabled account'
-      : 'Free key — register, paste, done';
+  tier.title = t(
+    key.tier === 'metered' ? 'keySetup.tier.metered' : 'keySetup.tier.free',
+  );
   head.append(led, title, tier);
   if (key.clientExposed) {
     const exposed = documentRef.createElement('span');
     exposed.className = 'key-setup-exposed';
-    exposed.textContent = 'browser-side';
-    exposed.title =
-      'This key runs in the browser by design — restrict it at the provider (see SECURITY.md)';
+    exposed.textContent = t('keySetup.browserSide');
+    exposed.title = t('keySetup.browserSide.title');
     head.append(exposed);
   }
   if (external) {
@@ -98,9 +99,8 @@ function buildRow(documentRef, key) {
     // facts this panel reports, never values it rewrites or deletes.
     const badge = documentRef.createElement('span');
     badge.className = 'key-setup-external';
-    badge.textContent = 'configured externally';
-    badge.title =
-      'Supplied by your environment, Keychain, or launcher — change it where it was set';
+    badge.textContent = t('keySetup.external');
+    badge.title = t('keySetup.external.title');
     head.append(badge);
   }
   const get = documentRef.createElement('a');
@@ -108,12 +108,15 @@ function buildRow(documentRef, key) {
   get.href = key.getUrl;
   get.target = '_blank';
   get.rel = 'noopener noreferrer';
-  get.textContent = key.set ? 'MANAGE ↗' : 'GET KEY ↗';
+  get.textContent = t(key.set ? 'keySetup.manage' : 'keySetup.get');
   head.append(get);
 
   const unlocks = documentRef.createElement('p');
   unlocks.className = 'key-setup-unlocks';
-  unlocks.textContent = key.unlocks;
+  // The registry owns this text; a locale may translate it by key id.
+  unlocks.textContent = t(`keySetup.unlocks.${key.id}`, {
+    default: key.unlocks,
+  });
 
   row.append(head, unlocks);
   if (!external) {
@@ -128,9 +131,10 @@ function buildRow(documentRef, key) {
       input.spellcheck = false;
       input.dataset.envVar = envVar;
       input.setAttribute('aria-label', envVar);
-      input.placeholder = key.set
-        ? `${envVar} saved — paste to replace`
-        : `paste ${envVar}`;
+      input.placeholder = t(
+        key.set ? 'keySetup.placeholder.saved' : 'keySetup.placeholder.empty',
+        { envVar },
+      );
       fields.append(input);
     }
     if (key.managed === 'file') {
@@ -138,8 +142,8 @@ function buildRow(documentRef, key) {
       remove.type = 'button';
       remove.className = 'key-setup-remove';
       remove.dataset.keySetupRemove = JSON.stringify(key.envVars);
-      remove.textContent = 'REMOVE';
-      remove.title = `Remove ${key.title} from this app's saved keys`;
+      remove.textContent = t('keySetup.remove');
+      remove.title = t('keySetup.remove.title', { title: key.title });
       fields.append(remove);
     }
     row.append(fields);
@@ -230,7 +234,9 @@ export async function initKeySetup({
     if (disposed) return;
     status = nextStatus;
     chipLabel.textContent = keySetupChipLabel(status);
-    chip.title = `Project keys: ${keySetupChipLabel(status)}`;
+    chip.title = t('keySetup.chip.title', {
+      label: keySetupChipLabel(status),
+    });
     chip.setAttribute('aria-label', chip.title);
     // Fully powered is the owner's clean screen: the chip retires. The dialog
     // stays reachable this session (and via ?setup=1) to swap or verify keys.
@@ -283,18 +289,20 @@ export async function initKeySetup({
   };
 
   const storeLabel = () =>
-    status?.store === 'pinokio-environment'
-      ? 'your app configuration'
-      : 'your local .env';
+    t(
+      status?.store === 'pinokio-environment'
+        ? 'keySetup.store.pinokio'
+        : 'keySetup.store.env',
+    );
 
-  const submitUpdates = async (updates, doneVerb) => {
+  const submitUpdates = async (updates, doneKey) => {
     if (disposed || busy) return;
     const googleWasUnset = !status?.keys?.find(
       (key) => key.id === 'google-maps',
     )?.set;
     busy = true;
     applyButton?.setAttribute('aria-disabled', 'true');
-    say('Saving…');
+    say(t('keySetup.saving'));
     try {
       const response = await doFetch('/api/setup/keys', {
         method: 'POST',
@@ -305,7 +313,10 @@ export async function initKeySetup({
       const payload = await response.json().catch(() => ({}));
       if (disposed) return;
       if (!response.ok || !payload.ok) {
-        say(payload.error || `Save failed (${response.status}).`);
+        say(
+          payload.error ||
+            t('keySetup.saveFailedStatus', { status: response.status }),
+        );
         return;
       }
       for (const input of root.querySelectorAll('input[data-env-var]'))
@@ -335,11 +346,9 @@ export async function initKeySetup({
           signal: lifetime.signal,
         });
       }
-      say(
-        `${doneVerb} ${storeLabel()}. Restarting — this page reloads itself.`,
-      );
+      say(t(doneKey, { store: storeLabel() }));
     } catch (error) {
-      say(`Save failed: ${error?.message || error}`);
+      say(t('keySetup.saveFailed', { message: error?.message || error }));
     } finally {
       busy = false;
       applyButton?.setAttribute('aria-disabled', 'false');
@@ -356,10 +365,10 @@ export async function initKeySetup({
       })),
     );
     if (!Object.keys(updates).length) {
-      say('Paste at least one key first.');
+      say(t('keySetup.empty'));
       return;
     }
-    await submitUpdates(updates, 'Saved to');
+    await submitUpdates(updates, 'keySetup.saved');
   };
 
   chip.addEventListener('click', openDialog);
@@ -381,11 +390,11 @@ export async function initKeySetup({
     // a deliberate two-step the lure cannot pre-satisfy.
     const ok =
       typeof globalThis.confirm !== 'function' ||
-      globalThis.confirm('Remove this key from your saved configuration?');
+      globalThis.confirm(t('keySetup.confirmRemove'));
     if (!ok) return;
     void submitUpdates(
       Object.fromEntries(envVars.map((name) => [name, null])),
-      'Removed from',
+      'keySetup.removed',
     );
   });
 

@@ -1,0 +1,46 @@
+/*
+ * Readable mode (Display > Readable, src/ui/readableMode.js). Loaded last so
+ * it wins over every layout's own tokens. Off by default.
+ *
+ * Small text is written `calc(Npx * var(--ui-small-text-scale, 1))` across the
+ * panel stylesheets, so one token enlarges it. The cockpit's instrument plates
+ * and the measured attribution line keep their fixed sizes.
+ */
+:root[data-readable] {
+  --ui-small-text-scale: 1.3;
+  --text-secondary: rgba(232, 234, 237, 0.88);
+  --text-dim: rgba(232, 234, 237, 0.72);
+  --glass-bg: rgba(8, 8, 14, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --accent-dim: rgba(0, 212, 255, 0.28);
+}
+
+:root[data-readable][data-ui-theme='cyber'] {
+  --text-secondary: rgba(226, 235, 236, 0.94);
+  --text-dim: rgba(196, 212, 216, 0.8);
+  --glass-border: rgba(206, 222, 226, 0.4);
+}
+
+/* Text drawn straight over the globe keeps its edge on bright imagery. */
+:root[data-readable] body {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.9),
+    0 0 1px rgba(0, 0, 0, 0.9);
+}
+
+:root[data-readable] .material-symbols-outlined {
+  opacity: 1;
+}
+
+/* The HUD fades its secondary lines with opacity rather than color. */
+:root[data-readable]
+  :is(
+    .hud-ais-vessel,
+    .hud-system,
+    .hud-summary-label,
+    .hud-summary,
+    .hud-orbital,
+    .hud-edge
+  ) {
+  opacity: 1;
+}

@@ -126,12 +126,12 @@ test('the corner ALT readout prints the MSL height, never the ellipsoidal one', 
     'the ALT readout must convert the camera height before printing it',
   );
   assert.equal(
-    has(/`ALT: \$\{Math\.round\(altMslM\)\}m/),
+    has(/translate\('hud\.alt', \{\s*alt: Math\.round\(altMslM\),/),
     true,
     'the #hud-alt line must print altMslM',
   );
   assert.equal(
-    has(/`ALT: \$\{Math\.round\(altM\)\}m/),
+    has(/alt: Math\.round\(altM\),/),
     false,
     'the #hud-alt line must not regress to the raw ellipsoidal camera height',
   );

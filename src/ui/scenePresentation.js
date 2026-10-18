@@ -1,3 +1,5 @@
+import { t } from '../i18n/index.js';
+
 /** Scene panel elements and text-only project presentation. */
 export function sceneElements(root = document) {
   const ids = {
@@ -47,7 +49,7 @@ export function renderSceneShots(
   if (!scene || scene.shots.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'scene-shot-empty';
-    empty.textContent = 'No shots yet. Use CAPTURE SHOT to save current look.';
+    empty.textContent = t('scenes.empty');
     element.appendChild(empty);
     return;
   }
@@ -61,14 +63,14 @@ export function renderSceneShots(
     const label = document.createElement('div');
     label.className = 'scene-shot-label';
     label.textContent = shot.title;
-    label.title = 'Double-click to rename';
+    label.title = t('scenes.rename');
     listen(label, 'click', () => select(shot.id));
     listen(label, 'dblclick', () => {
       if (label.children.length) return;
       const input = document.createElement('input');
       input.type = 'text';
       input.className = 'scene-shot-rename';
-      input.setAttribute('aria-label', 'Shot name');
+      input.setAttribute('aria-label', t('scenes.shotName'));
       input.value = shot.title;
       let finished = false;
       const finish = (save) => {
@@ -96,11 +98,11 @@ export function renderSceneShots(
     actions.className = 'scene-shot-actions';
     const loadButton = document.createElement('button');
     loadButton.className = 'scene-shot-btn';
-    loadButton.textContent = 'LOAD';
+    loadButton.textContent = t('scenes.load');
     listen(loadButton, 'click', () => load(scene.id, shot.id));
     const deleteButton = document.createElement('button');
     deleteButton.className = 'scene-shot-btn scene-shot-danger';
-    deleteButton.textContent = 'DEL';
+    deleteButton.textContent = t('scenes.del');
     listen(deleteButton, 'click', () => remove(scene.id, shot.id));
     actions.appendChild(loadButton);
     actions.appendChild(deleteButton);
@@ -108,7 +110,12 @@ export function renderSceneShots(
     top.appendChild(actions);
     const meta = document.createElement('div');
     meta.className = 'scene-shot-meta';
-    const mode = shot.visual?.detection?.mode || 'OFF';
+    const storedMode = shot.visual?.detection?.mode;
+    // Shots store the detection mode as written; only "off" has a translation.
+    const mode =
+      !storedMode || String(storedMode).toUpperCase() === 'OFF'
+        ? t('scenes.detectionOff')
+        : storedMode;
     const style = shot.visual?.style || 'normal';
     meta.textContent = `${style.toUpperCase()} · ${mode} · ${shot.durationSec.toFixed(1)}s + ${shot.holdSec.toFixed(1)}s`;
     row.appendChild(top);

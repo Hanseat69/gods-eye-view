@@ -2,6 +2,98 @@
 
 ## [Unreleased]
 
+- Find vessels by name, MMSI or IMO from a search field in the traffic bar.
+  Suggestions come from every vessel the server has cached
+  (`/api/ais-live/search`); picking one switches vessels on, flies there and
+  opens its contact card. The MarineTraffic link now centres MarineTraffic's
+  live map on the vessel's position, because its detail URLs no longer open
+  the vessel reliably.
+
+- Right click any object on the globe (or long press on a touch screen) for
+  a details dialog: every field the app holds for it from the owning layer
+  and the shared context record, formatted with units, plus photo and links
+  for aircraft and vessels. A right drag still zooms. AIS ship type codes now
+  read as classes ("Cargo ship") in the dialog and the contact card.
+- Switch aircraft, vessels or both from a quick switch at the top centre,
+  and list the 20 aircraft and vessels closest to the centre of the view;
+  picking one tracks the aircraft or flies to the vessel. The switch drives
+  the same layers as the Data Layers panel.
+
+- Show vessel photos from Wikimedia Commons by IMO number, with author,
+  licence and file page; when the photo shows the hull under an earlier name,
+  the card says so. Aircraft without a Planespotters photo fall back to
+  Commons by registration, but only to a category or file matching the
+  current type, since registrations are reused. IMO numbers are checked
+  against their check digit before any lookup.
+- Merge keyless Baltic Sea vessels from Digitraffic (Fintraffic, CC BY 4.0)
+  into the live vessel layer next to AISStream. Positions are polled once a
+  minute and static data every 15 minutes while the layer is on; the newest
+  fix wins whichever feed delivered it. Without `AISSTREAM_API_KEY` the
+  Baltic Sea still shows vessels. `DIGITRAFFIC_AIS=0` turns it off.
+
+- Translate the remaining interface text: internet radio and tuner, the local
+  RTL-SDR card and its status messages, the compact radio controls, Context
+  mode buttons, CCTV calibration tooltips, the Recent Imagery panel, the
+  weather timeline, voice status and cost tooltips, the scene shot list and
+  panel collapse buttons. `src/sdr/controller.js` keeps English status text;
+  `src/ui/localSdrPresentation.js` translates it where it is shown.
+
+- Translate the cockpit view (HUD readouts, contact window, flight plan,
+  briefing pages, local weather, signals), the live-data loading chip, the
+  start-up status, map-source key hints, draw-mode guidance, the camera tilt
+  and north-up buttons, the CCTV catalog summary and the Display panel
+  tooltips. Shared modules that must stay free of browser state
+  (`src/loadingFeedback.js`, `src/keySetupCore.mjs`) keep their English text;
+  it is put into the interface language where it is shown. Data attributions
+  and licence notices stay in their original wording.
+
+- Start faster from the double-click launchers. `Start-Windows.bat`,
+  `Start-Mac.command` and `start.sh` now pass `--fast`: the launcher serves
+  the production build through `vite preview` (about 50 requests and 6 MiB on
+  first load instead of about 760 requests and 49 MiB from the dev server;
+  DOMContentLoaded about 1.2 s instead of 4 s) and rebuilds it only when the
+  sources, the lockfile or `.env` are newer than `dist/index.html`. A failed
+  build falls back to the dev server. Provider Settings (POWER UP) needs the
+  dev server: `Start-Windows-Einrichtung.bat` or `./start.sh --dev`.
+  `npm start` keeps starting the dev server.
+
+- Switch edge smoothing off on weak GPUs. Display > Smooth edges
+  (`#msaa-toggle`) sets Cesium's MSAA to one sample instead of four. On by
+  default; stored per browser (`gev:msaa:v1`); `?msaa=0` or `?msaa=1` sets it
+  for one load.
+
+- Show a contact details card for the selected aircraft or vessel: a
+  Planespotters.net photo with its photographer credit for aircraft, the
+  identifiers the app already has, and links to Flightradar24, ADS-B
+  Exchange and Planespotters, or to MarineTraffic, VesselFinder and
+  MyShipTracking. The app only links to those sites and reads no data from
+  them; photos load from Planespotters through a cached local proxy.
+
+- Read the interface more easily. Display > Readable enlarges small panel,
+  dock and HUD text by 30%, raises secondary text contrast, makes panel
+  backgrounds denser and outlines text drawn over the globe. The choice is
+  stored per browser (`gev:readable-ui:v1`); `?readable=1` or `?readable=0`
+  sets it for one load. Off by default, so the standard look is unchanged:
+  small font sizes are now written against one `--ui-small-text-scale` token
+  that is 1 unless readable mode is on.
+
+- Start with one step: `npm start`, or a double click on `Start-Windows.bat`,
+  `Start-Mac.command` or `start.sh`, checks Node, installs dependencies when
+  they are missing or older than the lockfile, picks a free local port, starts
+  the dev server on 127.0.0.1 and opens the browser. The double-click
+  launchers open the German interface.
+
+- Choose the interface language. Display > Language lists English and
+  Deutsch; the choice is stored per browser (`gev:ui-locale:v1`) and the page
+  reloads in that language, keeping the shared view in its address. `?lang=de`
+  shows one load in German without changing the stored choice. English stays
+  the default and the source text. This first pass translates the first-run
+  launcher, Provider Settings, the Data Layers rows, the Display panel
+  controls, the command dock, the globe action buttons and the voice
+  control's labels, and the Context, CCTV, Scenes, Radio, RTL-SDR, Weather
+  and Recent Imagery panels, the HUD, scene-director messages and Radio
+  Browser categories; untranslated text stays English.
+
 ## [0.2.1] — 2026-10-02 — God's Eye View through Your Agent (with security fixes and other features)
 
 - Ship each bundled data pack once. The region, marine, admin-boundary,

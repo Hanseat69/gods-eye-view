@@ -9,6 +9,7 @@ import {
   resolveVoiceModel,
   formatCostUsd,
 } from './voiceCost.js';
+import { t } from '../i18n/index.js';
 
 /** Own next-session preferences and the immutable-model session cost meter. */
 export class RealtimeCost {
@@ -50,18 +51,24 @@ export class RealtimeCost {
       const pendingId = resolveVoiceModel(pendingTier).id;
       this.ui.tierButton.title =
         this.isActive() && state.modelId !== pendingId
-          ? `Next session: ${pendingId} — this session stays on ${state.modelId}`
-          : `Voice model: ${pendingId} — click to switch to ${
-              isMini ? 'standard' : 'mini'
-            }; applies next session`;
+          ? t('voice.tip.nextSession', {
+              next: pendingId,
+              current: state.modelId,
+            })
+          : t(isMini ? 'voice.tip.modelToStandard' : 'voice.tip.modelToMini', {
+              model: pendingId,
+            });
     }
     if (this.ui?.costValue) {
       this.ui.costValue.textContent = state.display;
       this.ui.costValue.dataset.level = state.level;
       this.ui.costValue.title =
-        `Estimated session cost on ${state.modelId} — ${state.responses} response(s). ` +
-        `Warns at ${formatCostUsd(state.warnUsd)}, ends the session at ${formatCostUsd(state.capUsd)}.` +
-        (state.note ? ` ${state.note}` : '');
+        t('voice.tip.cost', {
+          model: state.modelId,
+          responses: state.responses,
+          warn: formatCostUsd(state.warnUsd),
+          cap: formatCostUsd(state.capUsd),
+        }) + (state.note ? ` ${state.note}` : '');
     }
   }
 

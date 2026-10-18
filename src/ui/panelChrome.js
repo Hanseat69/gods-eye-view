@@ -1,3 +1,4 @@
+import { t } from '../i18n/index.js';
 import { UiLifetime } from './uiLifetime.js';
 import { displayPanelScroller } from './displayPanelScroll.js';
 import { PanelPositionControls } from './panelPositionControls.js';
@@ -305,14 +306,18 @@ export class PanelChrome {
         const panelName =
           panelEl
             .querySelector('.panel-title, .pp-header-label')
-            ?.textContent?.trim() || 'panel';
-        const action = collapsed ? 'Expand' : 'Collapse';
-        btn.title = `${action} ${panelName}`;
-        btn.setAttribute('aria-label', `${action} ${panelName}`);
+            ?.textContent?.trim() || t('panel.fallbackName');
+        const action = collapsed ? 'panel.expand' : 'panel.collapse';
+        btn.title = t(action, { name: panelName });
+        btn.setAttribute('aria-label', t(action, { name: panelName }));
         if (panelEl.id === 'radio-panel') {
-          const action = collapsed ? 'Expand' : 'Collapse';
-          btn.title = `${action} Radio`;
-          btn.setAttribute('aria-label', `${action} Radio section`);
+          btn.title = t(action, { name: 'Radio' });
+          btn.setAttribute(
+            'aria-label',
+            t(collapsed ? 'panel.expandSection' : 'panel.collapseSection', {
+              name: 'Radio',
+            }),
+          );
         }
       });
     const dockToggle = panelEl.querySelector(
@@ -322,11 +327,13 @@ export class PanelChrome {
       const panelName =
         panelEl
           .querySelector('.panel-title, .location-toolbar-label')
-          ?.textContent?.trim() || 'panel';
-      const action = collapsed ? 'Expand' : 'Collapse';
+          ?.textContent?.trim() || t('panel.fallbackName');
+      const label = t(collapsed ? 'panel.expand' : 'panel.collapse', {
+        name: panelName,
+      });
       dockToggle.setAttribute('aria-expanded', String(!collapsed));
-      dockToggle.setAttribute('aria-label', `${action} ${panelName}`);
-      dockToggle.title = `${action} ${panelName}`;
+      dockToggle.setAttribute('aria-label', label);
+      dockToggle.title = label;
     }
     if (panelEl.id === 'radio-panel' && this._contextRadioDetailsBtn) {
       this._contextRadioDetailsBtn.setAttribute(

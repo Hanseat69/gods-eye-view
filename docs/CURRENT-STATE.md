@@ -1,5 +1,163 @@
 # God's Eye View Current State
 
+## Object details dialog, traffic quick switch and Nearby list — October 18, 2026
+
+`src/ui/objectDetailsDialog.js` listens for `contextmenu` on the Cesium
+canvas and opens only when the pointer moved at most 6 px since the right
+button went down, so a right drag keeps zooming; a 600 ms touch press opens it
+too. It picks with `scene.pick`, resolves the owner through
+`pickOwner()` (new in `src/data/pickRegistry.js`) and gathers fields in
+`src/ui/objectDetails.js` from the layer's `getAnalystRecords`, its
+`getAllPositions` row, the plain record on the primitive and the context
+record, in that order (context values are often pre-formatted English text).
+The photo block is shared with the contact card through
+`src/ui/contactPhoto.js`. `src/data/aisShipTypes.js` maps AIS ship type codes
+to `vesselType.*` keys.
+
+`src/ui/trafficPanel.js` mounts after `application.start()`: the switch calls
+`dataManager.setEnabled` for `flights` and `ais-live-vessels` and follows
+`dataManager.subscribe`; the list reads `getAllPositions` of the enabled
+flight, military and vessel layers, measures from the globe point under the
+view centre, and selects through `trackById` / `selectById`. The contact card
+moved down to `top: 124px` to sit under the switch.
+
+## Vessel photos, Commons aircraft fallback and Digitraffic AIS — October 16, 2026
+
+`server/providers/commons/photos.js` serves `/api/commons-photo/vessel/<imo>`
+and `/api/commons-photo/aircraft/<registration>`. Vessels: the
+`Category:IMO <imo>` subcategory whose name matches the AIS name (accents
+folded) wins; otherwise the first subcategory is used and its name returned
+as `formerName`. Aircraft: a `Category:<REG> (aircraft)` subcategory or file
+must match the model token of the current type (`typeTokens`, registration
+digits removed); with type subcategories but no match nothing is shown.
+Thumbnails come from `upload.` or `thumb.wikimedia.org`. Answers are cached
+seven days in `.gev-cache/commons-photos.json`, at most 20 API calls a minute.
+`src/ui/contactDetails.js` asks Planespotters first for aircraft, then Commons;
+vessels go straight to Commons and need an IMO number.
+
+`server/providers/vessels/digitraffic.js` polls Digitraffic while
+`/api/ais-live` is requested (stops after five idle minutes) and writes into
+`ais-store.js` through `ingestVesselReport` / `ingestVesselStatic`; a report
+older than the held fix is ignored. Rows carry `source`. Without an AISStream
+key the route answers 200 with Digitraffic rows and Digitraffic's status.
+Measured: about 660 Baltic vessels in a 30-minute window, about two thirds
+with an IMO number.
+
+## German cockpit and tooltips — October 16, 2026
+
+`cockpit.*` keys cover `src/ui/templates/cockpit.html` and the cockpit
+modules; vision-mode names, briefing pages and weather labels are looked up
+by id with the English as `default`. `src/loadingFeedback.js` and
+`src/keySetupCore.mjs` stay English because packages that reach them must not
+touch browser globals: `src/ui/shellFeedback.js` maps loading labels to
+`hud.loading.*`, and `src/mapStackChips.js` / `src/ui/layerPanel.js` rewrite
+the "Needs … — add it in Provider Settings" hint. A catalog test now rejects
+an attribute written after a self-closing slash, which Vite cannot parse.
+Credits and licence notices are deliberately not translated.
+
+## Fast start and edge smoothing — October 16, 2026
+
+`scripts/launch.mjs --fast` builds once and serves `dist/` with
+`vite.preview()`; `needsBuild()` compares `dist/index.html` with the newest
+file under `BUILD_INPUTS` (sources, templates, build helpers, lockfile and
+`.env`, whose browser keys are written into the build). The double-click
+launchers use it; `Start-Windows-Einrichtung.bat` and `--dev` start the dev
+server, which alone serves Provider Settings. Measured in the cloud container
+(software GL, three cold loads each): dev server about 760 requests, 48.8 MiB,
+DOMContentLoaded about 4.1 s (18 s on the very first load while Vite
+pre-bundles); production build about 47 requests, 5.8 MiB, DOMContentLoaded
+about 1.2 s.
+
+Display > Smooth edges (`src/ui/edgeSmoothing.js`, bound from
+`src/standalone/edgeSmoothing.js`) switches `scene.msaaSamples` between 4 and
+1 at runtime and requests a frame. The viewer is still created with four
+samples; a stored off choice is applied once `application.start()` resolves.
+
+## Contact details card — October 7, 2026
+
+Selecting a flight or military aircraft, or an AIS vessel, opens a small card
+below the globe actions (`src/ui/contactDetails.js`, started from
+`src/main.js`). It listens to the selection events the layers already publish
+(`gev:awareness-subject-selected` / `-cleared` for aircraft,
+`gev:entity-selected` / `gev:entity-selection-cleared` for vessels) and reads
+their shared context record, so no layer depends on it; it refreshes every
+4 s while open so late adsbdb enrichment appears. The × closes the card
+without deselecting.
+
+Aircraft show type, registration, callsign, operator, route and ICAO hex, a
+Planespotters.net photo through `/api/aircraft-photo/<hex>`
+(`server/providers/aircraft/photos.js`) with its photographer credit and photo
+page link (answers cached 24 hours; the browser loads the image from
+Planespotters itself, and an image it cannot load becomes a link to the photo
+page), and links to Flightradar24 (callsign, else registration), ADS-B
+Exchange and Planespotters. Vessels show type, MMSI, IMO and destination and
+link to MarineTraffic, VesselFinder (by IMO, now part of the vessel context)
+and MyShipTracking; there is no openly licensed vessel photo source.
+`src/data/contactLinks.js` validates every identifier before building a URL.
+Owner data is never requested or shown.
+
+## Readable mode — October 7, 2026
+
+Display > Readable (`#readable-toggle`, `src/ui/readableMode.js`) sets
+`data-readable` on the root element. `src/ui/styles/readable.css`, imported
+after `cyber.css` so it wins over every layout, then raises
+`--ui-small-text-scale` to 1.3, lifts `--text-secondary` and `--text-dim`,
+makes `--glass-bg` denser, outlines text with a dark shadow and removes the
+HUD's opacity fades. Cyber keeps its own tint at the higher contrast.
+
+Every `font-size` of 12px or 0.75rem and below in the panel stylesheets is
+written `calc(N * var(--ui-small-text-scale, 1))`, so the default rendering is
+unchanged. Three places keep fixed sizes: `cockpit.css` (instrument plates),
+`voice-cost.css` (its readout must fit the voice button) and the
+`#cesium-credits` rule, whose 10px drives the measured attribution height.
+`src/ui/readableMode.test.mjs` fails when new small text skips the token.
+
+The choice is stored in `localStorage['gev:readable-ui:v1']` (off removes it);
+`?readable=1` and `?readable=0` apply to one load. Switching applies at once
+and dispatches a window resize so rails re-measure.
+
+## Interface language — October 3, 2026
+
+Display > Language switches the interface between English and Deutsch. The
+choice is stored in `localStorage['gev:ui-locale:v1']` (English removes it),
+and the page reloads so every surface starts in one language; the address,
+including the shared view in its hash, is kept. A `?lang=` query outranks the
+stored choice for that load and is dropped when the picker is used. The
+browser's own language is not consulted while coverage is partial.
+
+`src/i18n/` owns the catalogs and the translator. English is the source
+catalog: other locales fall back to it key by key and may not add keys.
+Static markup marks translatable text with `data-i18n="key"` and attributes
+with `data-i18n-attr="attribute:key"`; `src/standalone/locale.js` applies the
+locale before the application starts, so controllers that read their initial
+text from the markup read it translated. Modules ask for dynamic text with
+`t(key, params)`. `src/i18n/catalogs.test.mjs` keeps the English catalog
+identical to the marked template text, the provider registry's descriptions
+and the first-run mission text.
+
+Text another module owns (layer names, layer state words and group names in
+`src/ui/layerPanel.js`, and the Recent Imagery readout in
+`src/ui/recentImagery.js`, and Radio Browser category names) is translated by key with its English passed as
+`params.default`; those keys live under `OWNED_PREFIXES` (`layers.`,
+`imagery.`, `radiocat.`) and exist only in the other locales, so the English stays in one
+place. Module-level constants stay English and are translated where they are
+shown, because modules load before the page locale is set.
+
+Translated so far: the first-run launcher, Provider Settings (rows, status
+and confirmations; server error messages stay English), panel titles and the
+expand/collapse labels built from them, the Data Layers rows (names, groups,
+ON/OFF and feed states, last-update times), the Display panel controls, the
+command dock (Location, Visual Presets, styles and their descriptions, map
+source), the globe action buttons, and the voice control's labels, help and
+error tray, and the Context, CCTV, Scenes, Radio, local RTL-SDR, Weather and
+Recent Imagery panels (controls, states, hints, status and detail lines),
+the HUD (classification, readouts and the composed summary line; GSD, NIIRS,
+ONA, MGRS, PAN and AIS stay as the international abbreviations), the scene
+director's status and run messages, and the Radio Browser topic categories
+(`radiocat.`, owned by `src/layers/radio`; most music genres keep their
+names). The AI HUD summary, voice responses and server messages remain
+English: the summary's feed-state tokens are checked in English.
+
 ## God's Eye View in conversations — October 2, 2026
 
 Tool answers that can be shown in God's Eye View include a view: camera, layers,

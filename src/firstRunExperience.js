@@ -1,3 +1,4 @@
+import { t } from './i18n/index.js';
 import { createSurfaceKeyboard } from './ui/surfaceKeyboard.js';
 
 // First-run mission launcher.
@@ -360,7 +361,10 @@ export function initFirstRunExperience({
     '[data-first-run-environmental-title]',
   );
   if (environmentalTitle)
-    environmentalTitle.textContent = environmentalLabel().title;
+    environmentalTitle.textContent = t(
+      `firstRun.environmentalLabel.${ENVIRONMENTAL_LABEL_CHOICE}`,
+      { default: environmentalLabel().title },
+    );
 
   const status = root.querySelector('[data-first-run-status]');
   const suppressBox = root.querySelector('[data-first-run-suppress]');
@@ -443,7 +447,10 @@ export function initFirstRunExperience({
       button.setAttribute('aria-disabled', String(next));
     if (!status) return;
     if (next)
-      status.textContent = FIRST_RUN_MISSIONS[choice]?.busyText || 'Working…';
+      status.textContent = t(`firstRun.busy.${choice}`, {
+        default:
+          FIRST_RUN_MISSIONS[choice]?.busyText || t('firstRun.busy.default'),
+      });
     else if (status.dataset.sticky !== 'true')
       status.textContent = defaultStatus;
   };
@@ -493,7 +500,7 @@ export function initFirstRunExperience({
       Array.isArray(failed) && failed.length ? ` (${failed.join(', ')})` : '';
     if (status) {
       status.dataset.sticky = 'true';
-      status.textContent = `Could not open that mission${detail}. Retry or explore manually.`;
+      status.textContent = t('firstRun.failed', { detail });
     }
     setBusy(false);
   };
@@ -509,8 +516,7 @@ export function initFirstRunExperience({
     if (box) box.checked = !wanted;
     if (!status) return;
     status.dataset.sticky = 'true';
-    status.textContent =
-      'This browser is blocking storage, so that could not be saved.';
+    status.textContent = t('firstRun.storageBlocked');
   };
 
   const keyboard = createSurfaceKeyboard({

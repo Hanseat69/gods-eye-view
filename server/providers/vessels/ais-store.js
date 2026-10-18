@@ -81,6 +81,7 @@ export function ingestAisStreamEnvelope(envelope) {
     // Use the AIS message's own report time, not server ingest wall-clock —
     // trail spacing and dead reckoning depend on true fix epochs.
     last_position_epoch: aisEpochSeconds(metadata.time_utc ?? metadata.TimeUtc),
+    source: 'AISStream',
     _updatedAt: Date.now(),
   });
 
@@ -92,6 +93,73 @@ export function ingestAisStreamEnvelope(envelope) {
   );
 
   pruneAisStreamCache();
+  return true;
+}
+
+/**
+ * Store a vessel report from a source other than AISStream (for example
+ * Digitraffic). Both feeds share one MMSI-keyed cache: a report older than the
+ * position already held never replaces it, so the newest fix wins whichever
+ * source delivered it.
+ *
+ * @param {{mmsi: string|number, lat: number, lon: number, epochMs: number,
+ *   speed?: number|null, course?: number|null, heading?: number|null,
+ *   source: string}} report
+ * @returns {boolean} True when the position was stored.
+ */
+export function ingestVesselReport(report) {
+  const mmsi = stringValue(report?.mmsi);
+  const lat = numberValue(report?.lat);
+  const lon = numberValue(report?.lon);
+  const epochMs = numberValue(report?.epochMs);
+  if (!/^\d{5,10}$/.test(mmsi) || lat === null || lon === null) return false;
+  if (Math.abs(lat) > 90 || Math.abs(lon) > 180 || epochMs === null)
+    return false;
+  const epochSec = Math.floor(epochMs / 1000);
+  const existing = _aisStreamVessels.get(mmsi);
+  if (existing && existing.last_position_epoch >= epochSec) return false;
+  const staticData = _aisStreamStatic.get(mmsi) || {};
+  _aisStreamVessels.set(mmsi, {
+    lat,
+    lon,
+    name: staticData.name || existing?.name || `MMSI ${mmsi}`,
+    mmsi,
+    imo: staticData.imo || existing?.imo || '',
+    type: staticData.type || existing?.type || '',
+    destination: staticData.destination || existing?.destination || '',
+    speed: normalizedSpeedOverGround(report.speed),
+    course: normalizedCourseOverGround(report.course),
+    heading: normalizedHeading(report.heading),
+    last_position_UTC: new Date(epochSec * 1000).toISOString(),
+    last_position_epoch: epochSec,
+    source: stringValue(report.source),
+    _updatedAt: Date.now(),
+  });
+  appendAisTrackSample(mmsi, lat, lon, epochSec);
+  pruneAisStreamCache();
+  return true;
+}
+
+/**
+ * Store static vessel data (name, type, IMO, destination) from a source other
+ * than AISStream. Values already known are kept; only gaps are filled.
+ * @param {{mmsi: string|number, name?: string, type?: string|number,
+ *   imo?: string|number, destination?: string}} data
+ * @returns {boolean} True when the record was accepted.
+ */
+export function ingestVesselStatic(data) {
+  const mmsi = stringValue(data?.mmsi);
+  if (!/^\d{5,10}$/.test(mmsi)) return false;
+  const known = _aisStreamStatic.get(mmsi) || {};
+  const imo = stringValue(data.imo);
+  const staticData = {
+    name: known.name || stringValue(data.name),
+    type: known.type || stringValue(data.type),
+    destination: known.destination || stringValue(data.destination),
+    imo: known.imo || (isValidImo(imo) ? imo : ''),
+  };
+  _aisStreamStatic.set(mmsi, staticData);
+  mergeAisStaticIntoLiveVessel(mmsi, staticData);
   return true;
 }
 
@@ -257,8 +325,87 @@ function pruneAisStreamCache() {
   }
 }
 
+/** Upper-case letters, digits and single spaces; accents folded. */
+export function normalizeVesselQuery(value) {
+  return String(value ?? '')
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, ' ')
+    .trim();
+}
+
+/**
+ * Rank one vessel against a normalized query: 0 exact name, 1 name starts
+ * with it, 2 a word starts with it, 3 name contains it, 4 MMSI/IMO starts
+ * with it; null when it does not match.
+ */
+export function vesselMatchRank(row, query) {
+  if (!query) return null;
+  const name = normalizeVesselQuery(row?.name);
+  if (name) {
+    if (name === query) return 0;
+    if (name.startsWith(query)) return 1;
+    if (name.includes(` ${query}`)) return 2;
+    if (name.includes(query)) return 3;
+  }
+  if (/^\d{3,}$/.test(query)) {
+    if (String(row?.mmsi || '').startsWith(query)) return 4;
+    if (String(row?.imo || '').startsWith(query)) return 4;
+  }
+  return null;
+}
+
+/**
+ * Search the cached vessels by name (or MMSI/IMO digits), best match first,
+ * then the most recently reported. Only vessels with a current position are
+ * returned, so every suggestion can be shown on the globe.
+ * @param {string} query At least two characters.
+ * @param {number} [limit]
+ * @returns {Array<object>}
+ */
+export function searchAisVessels(query, limit = 10) {
+  const wanted = normalizeVesselQuery(query);
+  if (wanted.length < 2) return [];
+  const cutoff = Date.now() - AISSTREAM_STALE_MS;
+  const hits = [];
+  for (const row of _aisStreamVessels.values()) {
+    if (row._updatedAt < cutoff) continue;
+    const rank = vesselMatchRank(row, wanted);
+    if (rank === null) continue;
+    hits.push({ rank, row });
+  }
+  hits.sort(
+    (a, b) =>
+      a.rank - b.rank ||
+      b.row._updatedAt - a.row._updatedAt ||
+      String(a.row.name).localeCompare(String(b.row.name)),
+  );
+  return hits.slice(0, Math.max(1, Math.min(limit, 25))).map(({ row }) => ({
+    mmsi: row.mmsi,
+    name: row.name,
+    imo: row.imo || '',
+    type: row.type || '',
+    destination: row.destination || '',
+    lat: row.lat,
+    lon: row.lon,
+    last_position_UTC: row.last_position_UTC,
+    source: row.source || '',
+  }));
+}
+
 export function newestAisPositionAt(rows) {
   return rows[0]?.last_position_UTC || null;
+}
+
+/** IMO ship number with a valid check digit (digits 1-6 weighted 7..2). */
+function isValidImo(value) {
+  if (!/^\d{7}$/.test(value)) return false;
+  const digits = value.split('').map(Number);
+  const sum = digits
+    .slice(0, 6)
+    .reduce((total, d, i) => total + d * (7 - i), 0);
+  return sum % 10 === digits[6];
 }
 
 function stringValue(value) {

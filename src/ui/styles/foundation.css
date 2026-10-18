@@ -346,7 +346,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
-  font-size: 12px !important;
+  font-size: calc(12px * var(--ui-small-text-scale, 1)) !important;
   line-height: 1.35;
   white-space: normal;
 }
@@ -412,7 +412,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
   border: 1px solid rgba(0, 212, 255, 0.28);
   border-radius: var(--btn-radius);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-small-text-scale, 1));
   letter-spacing: 0;
   cursor: pointer;
 }
@@ -430,7 +430,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
 }
 
 #gev-voice-status {
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-small-text-scale, 1));
   color: var(--accent);
 }
 
@@ -439,7 +439,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
   margin-top: 2px;
   overflow: hidden;
   color: var(--text-secondary);
-  font-size: 9px;
+  font-size: calc(9px * var(--ui-small-text-scale, 1));
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -606,7 +606,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
 
 #title-bar .subtitle {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-small-text-scale, 1));
   letter-spacing: 5px;
   color: var(--text-dim);
   margin-top: 8px;
@@ -616,7 +616,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
 #title-bar .frame-rate-readout {
   margin-top: 6px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-small-text-scale, 1));
   font-variant-numeric: tabular-nums;
   letter-spacing: 1px;
   color: var(--accent);
@@ -636,7 +636,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
 #style-indicator .indicator-label {
   display: block;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-small-text-scale, 1));
   letter-spacing: 3px;
   color: var(--text-dim);
   text-transform: uppercase;

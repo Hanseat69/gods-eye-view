@@ -83,3 +83,21 @@ export function isOwnedByOtherLayer(layerId, pickedId) {
   }
   return false;
 }
+
+/**
+ * The registered layer that owns a picked id, for consumers that act on any
+ * layer's objects (the object details dialog).
+ * @param {string|null} pickedId - Picked primitive/entity id.
+ * @returns {string|null} Owning layer id, or null when none claims it.
+ */
+export function pickOwner(pickedId) {
+  if (!pickedId) return null;
+  for (const [ownerId, predicate] of _owners) {
+    try {
+      if (predicate(pickedId)) return ownerId;
+    } catch {
+      // a broken predicate must never break the lookup
+    }
+  }
+  return null;
+}

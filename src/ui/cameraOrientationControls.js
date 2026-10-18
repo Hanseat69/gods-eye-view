@@ -1,5 +1,6 @@
 import * as Cesium from 'cesium';
 import { isPickedWorldPosition } from '../data/scenePick.js';
+import { t } from '../i18n/index.js';
 
 function trackedTarget(viewer) {
   const entity = viewer.trackedEntity;
@@ -287,9 +288,7 @@ export function bindCameraOrientationControls({
       tiltButton?.setAttribute('aria-pressed', String(next.tilted));
       tiltButton?.setAttribute(
         'aria-label',
-        next.tilted
-          ? 'Return map to straight-down view'
-          : 'Tilt map to oblique view',
+        t(next.tilted ? 'hud.camera.straightDown' : 'hud.camera.tilt'),
       );
     }
     if (!applied || applied.heading !== next.heading) {
@@ -297,7 +296,7 @@ export function bindCameraOrientationControls({
       northButton?.style?.setProperty('--camera-heading', `${next.heading}deg`);
       northButton?.setAttribute(
         'aria-label',
-        `Reset map to north up. Current heading ${next.heading} degrees`,
+        t('hud.camera.northUp', { heading: next.heading }),
       );
     }
     applied = next;
@@ -323,7 +322,9 @@ export function bindCameraOrientationControls({
         : false;
     });
     if (result) {
-      showToast?.(result.tilted ? 'Tilted view' : 'Straight-down view');
+      showToast?.(
+        t(result.tilted ? 'hud.camera.tilted' : 'hud.camera.topDown'),
+      );
       // The action reports the state it just commanded, so the button can
       // follow it without a second pick.
       tilted = result.tilted;
@@ -342,7 +343,7 @@ export function bindCameraOrientationControls({
         })
       );
     });
-    if (result) showToast?.('North up');
+    if (result) showToast?.(t('hud.camera.northToast'));
     sync();
   });
 
