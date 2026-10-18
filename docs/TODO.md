@@ -12,6 +12,13 @@ Geplante Verbesserungen für diesen Fork. Bekannte Fehler stehen in
 
 ## Erledigt
 
+- **Schiffssuche mit Vorschlägen** (`src/ui/vesselSearch.js`,
+  `/api/ais-live/search`): Suchfeld in der Leiste oben; findet alle Schiffe im
+  Server-Zwischenspeicher nach Name, MMSI oder IMO, fliegt zum gewählten
+  Schiff und öffnet die Kontaktkarte.
+- **MarineTraffic-Link** öffnet die Karte zentriert auf die Schiffsposition
+  (die Detailseiten-Links von MarineTraffic funktionieren nicht mehr).
+
 - **Schnellwahl Flugzeuge / Schiffe** (`src/ui/trafficPanel.js`): Knöpfe
   „Flugzeuge“, „Schiffe“, „Beide“ oben in der Mitte; erneutes Klicken blendet
   wieder aus. Sie schalten dieselben Ebenen wie das Panel „Datenebenen“.

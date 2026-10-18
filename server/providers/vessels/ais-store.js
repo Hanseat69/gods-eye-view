@@ -325,6 +325,75 @@ function pruneAisStreamCache() {
   }
 }
 
+/** Upper-case letters, digits and single spaces; accents folded. */
+export function normalizeVesselQuery(value) {
+  return String(value ?? '')
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, ' ')
+    .trim();
+}
+
+/**
+ * Rank one vessel against a normalized query: 0 exact name, 1 name starts
+ * with it, 2 a word starts with it, 3 name contains it, 4 MMSI/IMO starts
+ * with it; null when it does not match.
+ */
+export function vesselMatchRank(row, query) {
+  if (!query) return null;
+  const name = normalizeVesselQuery(row?.name);
+  if (name) {
+    if (name === query) return 0;
+    if (name.startsWith(query)) return 1;
+    if (name.includes(` ${query}`)) return 2;
+    if (name.includes(query)) return 3;
+  }
+  if (/^\d{3,}$/.test(query)) {
+    if (String(row?.mmsi || '').startsWith(query)) return 4;
+    if (String(row?.imo || '').startsWith(query)) return 4;
+  }
+  return null;
+}
+
+/**
+ * Search the cached vessels by name (or MMSI/IMO digits), best match first,
+ * then the most recently reported. Only vessels with a current position are
+ * returned, so every suggestion can be shown on the globe.
+ * @param {string} query At least two characters.
+ * @param {number} [limit]
+ * @returns {Array<object>}
+ */
+export function searchAisVessels(query, limit = 10) {
+  const wanted = normalizeVesselQuery(query);
+  if (wanted.length < 2) return [];
+  const cutoff = Date.now() - AISSTREAM_STALE_MS;
+  const hits = [];
+  for (const row of _aisStreamVessels.values()) {
+    if (row._updatedAt < cutoff) continue;
+    const rank = vesselMatchRank(row, wanted);
+    if (rank === null) continue;
+    hits.push({ rank, row });
+  }
+  hits.sort(
+    (a, b) =>
+      a.rank - b.rank ||
+      b.row._updatedAt - a.row._updatedAt ||
+      String(a.row.name).localeCompare(String(b.row.name)),
+  );
+  return hits.slice(0, Math.max(1, Math.min(limit, 25))).map(({ row }) => ({
+    mmsi: row.mmsi,
+    name: row.name,
+    imo: row.imo || '',
+    type: row.type || '',
+    destination: row.destination || '',
+    lat: row.lat,
+    lon: row.lon,
+    last_position_UTC: row.last_position_UTC,
+    source: row.source || '',
+  }));
+}
+
 export function newestAisPositionAt(rows) {
   return rows[0]?.last_position_UTC || null;
 }

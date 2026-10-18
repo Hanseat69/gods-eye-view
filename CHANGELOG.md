@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+- Find vessels by name, MMSI or IMO from a search field in the traffic bar.
+  Suggestions come from every vessel the server has cached
+  (`/api/ais-live/search`); picking one switches vessels on, flies there and
+  opens its contact card. The MarineTraffic link now centres MarineTraffic's
+  live map on the vessel's position, because its detail URLs no longer open
+  the vessel reliably.
+
 - Right click any object on the globe (or long press on a touch screen) for
   a details dialog: every field the app holds for it from the owning layer
   and the shared context record, formatted with units, plus photo and links

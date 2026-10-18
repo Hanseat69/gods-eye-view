@@ -83,7 +83,12 @@ export function describeContact(subject, context) {
   return {
     title: text(context?.label || subject.label || mmsi),
     lines,
-    links: vesselLinks({ mmsi, imo }),
+    links: vesselLinks({
+      mmsi,
+      imo,
+      latitude: context?.latitude ?? props.latitude,
+      longitude: context?.longitude ?? props.longitude,
+    }),
     photo: {
       kind: 'vessel',
       imo: /^\d{7}$/.test(imoNumber) ? imoNumber : null,

@@ -235,7 +235,12 @@ export function gatherObjectDetails({
       imo: /^\d{7}$/.test(imo) ? imo : null,
       name: title,
     };
-    links = vesselLinks({ mmsi, imo });
+    links = vesselLinks({
+      mmsi,
+      imo,
+      latitude: fields.get('latitude'),
+      longitude: fields.get('longitude'),
+    });
   }
   return {
     layerId: resolvedLayer,

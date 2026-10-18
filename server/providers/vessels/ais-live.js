@@ -10,6 +10,7 @@ import {
   readAisTrack,
   aisStreamRows,
   newestAisPositionAt,
+  searchAisVessels,
   ingestVesselReport,
   ingestVesselStatic,
 } from './ais-store.js';
@@ -132,6 +133,21 @@ export function aisLiveProxy() {
               retainedSec: Math.floor(AISSTREAM_STALE_MS / 1000),
             }),
           );
+          return;
+        }
+
+        // Name search over every cached vessel, not only the rows a client
+        // holds: /api/ais-live/search?q=<name>&limit=<n>.
+        if (incoming.pathname === '/search') {
+          const query = String(incoming.searchParams.get('q') || '').slice(
+            0,
+            60,
+          );
+          const limit = clampInt(incoming.searchParams.get('limit'), 1, 25, 10);
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          res.setHeader('Cache-Control', 'no-store');
+          res.end(JSON.stringify({ results: searchAisVessels(query, limit) }));
           return;
         }
 

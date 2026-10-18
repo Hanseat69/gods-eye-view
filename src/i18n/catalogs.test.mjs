@@ -164,6 +164,7 @@ test('every literal key the adopting modules ask for exists', () => {
     '../ui/objectDetailsDialog.js',
     '../ui/trafficPanel.js',
     '../ui/contactPhoto.js',
+    '../ui/vesselSearch.js',
     '../voice/sessionCommands.js',
   ]) {
     const source = readFileSync(new URL(file, import.meta.url), 'utf8');
@@ -174,7 +175,7 @@ test('every literal key the adopting modules ask for exists', () => {
         `${file} asks for unknown key ${key}`,
       );
     for (const [, key] of source.matchAll(
-      /'((?:keySetup|firstRun|panel|display|voice|radio|sdr|cctv|scenes|weather|context|hud|director|contact|cockpit|sdr)\.[\w.-]+)'/g,
+      /'((?:keySetup|firstRun|panel|display|voice|radio|sdr|cctv|scenes|weather|context|hud|director|contact|cockpit|search|traffic|details)\.[\w.-]+)'/g,
     ))
       assert.ok(Object.hasOwn(EN, key), `${file} names unknown key ${key}`);
   }

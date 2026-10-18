@@ -960,6 +960,14 @@ const EN = Object.freeze({
   'vesselType.cargo': 'Cargo ship',
   'vesselType.tanker': 'Tanker',
   'vesselType.other': 'Other vessel',
+  // Vessel search (src/ui/vesselSearch.js).
+  'search.placeholder': 'Find a vessel…',
+  'search.label': 'Search vessels by name, MMSI or IMO',
+  'search.none': 'No vessel found',
+  'search.layerOff':
+    'Vessels are off: switch on “Vessels”, then the search fills within a minute.',
+  'search.unavailable': 'Search not available right now',
+  'search.count': '{count} suggestions',
 });
 
 const DE = Object.freeze({
@@ -2084,6 +2092,14 @@ const DE = Object.freeze({
   'vesselType.cargo': 'Frachtschiff',
   'vesselType.tanker': 'Tanker',
   'vesselType.other': 'Sonstiges Schiff',
+  // Vessel search (src/ui/vesselSearch.js).
+  'search.placeholder': 'Schiff suchen …',
+  'search.label': 'Schiffe nach Name, MMSI oder IMO suchen',
+  'search.none': 'Kein Schiff gefunden',
+  'search.layerOff':
+    'Schiffe sind ausgeschaltet: „Schiffe“ einschalten, dann füllt sich die Suche innerhalb einer Minute.',
+  'search.unavailable': 'Suche gerade nicht verfügbar',
+  'search.count': '{count} Vorschläge',
 });
 
 /**

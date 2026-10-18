@@ -55,20 +55,36 @@ export function aircraftLinks({ hex, callsign, registration } = {}) {
 }
 
 /**
- * @param {{mmsi?: string|number, imo?: string|number}} vessel
+ * MarineTraffic's own detail URLs (`/ais/details/ships/mmsi:…`) no longer
+ * open the vessel reliably, so its link centres the live map on the vessel's
+ * position instead; without a position there is no MarineTraffic link.
+ * @param {{mmsi?: string|number, imo?: string|number, latitude?: number,
+ *   longitude?: number}} vessel
  * @returns {Array<{id: string, label: string, href: string}>}
  */
-export function vesselLinks({ mmsi, imo } = {}) {
+export function vesselLinks({ mmsi, imo, latitude, longitude } = {}) {
   const links = [];
   const id = String(mmsi ?? '').trim();
   const imoNumber = String(imo ?? '')
     .trim()
     .replace(/^IMO\s*/i, '');
-  if (MMSI.test(id))
+  const lat = Number(latitude);
+  const lon = Number(longitude);
+  if (
+    MMSI.test(id) &&
+    latitude !== null &&
+    latitude !== undefined &&
+    longitude !== null &&
+    longitude !== undefined &&
+    Number.isFinite(lat) &&
+    Number.isFinite(lon) &&
+    Math.abs(lat) <= 90 &&
+    Math.abs(lon) <= 180
+  )
     links.push({
       id: 'marinetraffic',
       label: 'MarineTraffic',
-      href: `https://www.marinetraffic.com/en/ais/details/ships/mmsi:${id}`,
+      href: `https://www.marinetraffic.com/en/ais/home/centerx:${lon.toFixed(4)}/centery:${lat.toFixed(4)}/zoom:13`,
     });
   // VesselFinder's detail pages are keyed by IMO number.
   if (IMO.test(imoNumber))

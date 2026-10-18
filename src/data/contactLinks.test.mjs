@@ -36,21 +36,35 @@ test('malformed aircraft identifiers produce no link', () => {
   assert.deepEqual(aircraftLinks(), []);
 });
 
-test('vessel links use MMSI, and IMO for VesselFinder', () => {
+test('vessel links: MarineTraffic map at the position, IMO for VesselFinder', () => {
   assert.deepEqual(
-    hrefs(vesselLinks({ mmsi: 211331640, imo: 'IMO 9811000' })),
+    hrefs(
+      vesselLinks({
+        mmsi: 211331640,
+        imo: 'IMO 9811000',
+        latitude: 54.5612,
+        longitude: 10.81,
+      }),
+    ),
     [
       [
         'marinetraffic',
-        'https://www.marinetraffic.com/en/ais/details/ships/mmsi:211331640',
+        'https://www.marinetraffic.com/en/ais/home/centerx:10.8100/centery:54.5612/zoom:13',
       ],
       ['vesselfinder', 'https://www.vesselfinder.com/vessels/details/9811000'],
       ['myshiptracking', 'https://www.myshiptracking.com/?mmsi=211331640'],
     ],
   );
   assert.deepEqual(
-    hrefs(vesselLinks({ mmsi: '211331640' })).map(([id]) => id),
+    hrefs(vesselLinks({ mmsi: '211331640', latitude: 54, longitude: 10 })).map(
+      ([id]) => id,
+    ),
     ['marinetraffic', 'myshiptracking'],
+  );
+  assert.deepEqual(
+    hrefs(vesselLinks({ mmsi: '211331640' })).map(([id]) => id),
+    ['myshiptracking'],
+    'no position, no MarineTraffic link',
   );
   assert.deepEqual(vesselLinks({ mmsi: '12345', imo: '0' }), []);
 });

@@ -55,6 +55,8 @@ test('a vessel shows its identifiers and links and asks for a photo by IMO', () 
     { kind: 'vessel', id: 'ais-211331640' },
     {
       label: 'NORDIC STAR',
+      latitude: 53.55,
+      longitude: 9.97,
       properties: {
         mmsi: '211331640',
         imo: '9811000',

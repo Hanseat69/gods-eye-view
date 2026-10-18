@@ -6,6 +6,7 @@ import { applyPageReadability } from './standalone/readability.js';
 import { startContactDetails } from './ui/contactDetails.js';
 import { startObjectDetails } from './ui/objectDetailsDialog.js';
 import { startTrafficPanel } from './ui/trafficPanel.js';
+import { startVesselSearch } from './ui/vesselSearch.js';
 
 applyPageLocale();
 applyPageReadability();
@@ -24,6 +25,7 @@ application
   .then(() => {
     // Both need the globe and the data layers, which exist once start() resolves.
     startTrafficPanel();
+    startVesselSearch();
     startObjectDetails();
   })
   .catch((error) => {

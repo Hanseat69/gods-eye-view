@@ -911,5 +911,6 @@
   "src/tooling/commonsPhotoProvider.test.mjs",
   "src/tooling/digitrafficProvider.test.mjs",
   "src/ui/objectDetails.test.mjs",
-  "src/ui/trafficPanel.test.mjs"
+  "src/ui/trafficPanel.test.mjs",
+  "src/tooling/vesselSearch.test.mjs"
 ]
