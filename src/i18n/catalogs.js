@@ -405,7 +405,7 @@ const EN = Object.freeze({
     'No photo of this aircraft on Planespotters or Wikimedia Commons',
   'contact.noVesselPhoto': 'Wikimedia Commons has no photo of this vessel',
   'contact.vesselNoImo':
-    'A photo needs the IMO number, which this vessel has not broadcast yet.',
+    'No IMO number received yet, so no photo. Ships repeat it about every 6 minutes; it appears here by itself. Small craft (AIS class B) never send one.',
   'contact.commonsAuthor': 'Photo: {name}',
   'contact.commonsUnknownAuthor': 'unknown author',
   'contact.formerName': 'Photo shows the vessel under an earlier name: {name}',
@@ -1522,7 +1522,7 @@ const DE = Object.freeze({
     'Kein Foto dieses Flugzeugs bei Planespotters oder Wikimedia Commons',
   'contact.noVesselPhoto': 'Wikimedia Commons hat kein Foto dieses Schiffs',
   'contact.vesselNoImo':
-    'Für ein Foto fehlt noch die IMO-Nummer; das Schiff hat sie noch nicht gesendet.',
+    'Noch keine IMO-Nummer empfangen, daher kein Foto. Schiffe wiederholen sie etwa alle 6 Minuten; sie erscheint hier von selbst. Kleine Fahrzeuge (AIS-Klasse B) senden keine.',
   'contact.commonsAuthor': 'Foto: {name}',
   'contact.commonsUnknownAuthor': 'Urheber unbekannt',
   'contact.formerName': 'Foto zeigt das Schiff unter früherem Namen: {name}',
